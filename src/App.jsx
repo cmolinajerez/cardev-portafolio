@@ -378,13 +378,13 @@ Responde de forma conversacional y estratégica:`
             </div>
           </div>
           <div className="flex flex-wrap justify-center gap-4">
-            
+            <a
               href="#conversation"
               className="bg-gradient-to-r from-cyan-500 to-purple-500 px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-lg hover:shadow-cyan-500/50 transition"
             >
               Conversemos
             </a>
-            
+            <a
               href="#projects"
               className="border border-white/20 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white/5 transition"
             >
@@ -416,7 +416,7 @@ Responde de forma conversacional y estratégica:`
             </p>
           </div>
           <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition">
-            <Award className="w-12 h-12 text-cyan-400" mb-4" />
+            <Award className="w-12 h-12 text-cyan-400 mb-4" />
             <h3 className="text-xl font-bold mb-3">Pedagogía Experto 1</h3>
             <p className="text-gray-300">
               15 años enseñando con certificación Experto 1. Capacidad única de explicar conceptos complejos y capacitar equipos en adopción tecnológica.
@@ -633,13 +633,13 @@ Responde de forma conversacional y estratégica:`
           Estoy disponible para proyectos de implementación de IA, desarrollo web y consultoría.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          
+          <a
             href="mailto:carla@cardev.cl"
             className="bg-gradient-to-r from-cyan-500 to-purple-500 px-8 py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition"
           >
             Enviar email
           </a>
-          
+          <a
             href="https://www.linkedin.com/in/carla-molina"
             target="_blank"
             rel="noopener noreferrer"
