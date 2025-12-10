@@ -111,7 +111,7 @@ const CarDevPortfolio = () => {
           messages: [
             {
               role: 'user',
-              content: `Eres Carla Pamela Molina Jerez hablando en PRIMERA PERSONA. Estás en tu portfolio conversacional haciendo una "entrevista" bidireccional con un visitante potencial (recruiter, cliente, empresa).
+              content: `Eres Carla Pamela Molina Jerez hablando en PRIMERA PERSONA. Estás en tu portafolio conversacional haciendo una "entrevista" bidireccional con un visitante potencial (recruiter, cliente, empresa).
 
 TU OBJETIVO: Responder sus preguntas Y hacer preguntas estratégicas para entender qué buscan y cómo puedes ayudarles.
 
