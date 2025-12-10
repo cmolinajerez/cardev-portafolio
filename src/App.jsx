@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSquare, Sparkles, Zap } from 'lucide-react';
+import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSquare, Sparkles, Zap, Volume2, VolumeX } from 'lucide-react';
 
 const AVATAR_IMAGE_URL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'%3E%3Crect fill='%23334155' width='400' height='500'/%3E%3Ctext x='200' y='250' text-anchor='middle' fill='%2306b6d4' font-size='16' font-family='Arial'%3ETu Avatar Aquí%3C/text%3E%3C/svg%3E";
 
@@ -9,8 +9,10 @@ const CarDevPortfolio = () => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [playingMessageIndex, setPlayingMessageIndex] = useState(null);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -20,27 +22,38 @@ const CarDevPortfolio = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
+      recognitionRef.current.continuous = true; // ✅ No se detiene automáticamente
+      recognitionRef.current.interimResults = true; // ✅ Muestra resultados mientras hablas
       recognitionRef.current.lang = 'es-ES';
 
       recognitionRef.current.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        setInput(transcript);
-        setIsListening(false);
+        // Obtener el texto final (no interim)
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
+        }
+        
+        if (finalTranscript) {
+          setInput(prev => prev + ' ' + finalTranscript);
+        }
       };
 
       recognitionRef.current.onerror = (event) => {
         console.error('Error de reconocimiento de voz:', event.error);
+        
+        // No detener la grabación por errores menores
+        if (event.error === 'no-speech' || event.error === 'audio-capture') {
+          return; // Continuar escuchando
+        }
+        
         setIsListening(false);
         
         let errorMessage = 'Error con el micrófono. ';
         switch(event.error) {
           case 'not-allowed':
             errorMessage += 'Por favor, permite el acceso al micrófono en la configuración del navegador.';
-            break;
-          case 'no-speech':
-            errorMessage += 'No se detectó voz. Intenta de nuevo.';
             break;
           case 'network':
             errorMessage += 'Error de conexión. Verifica tu internet.';
@@ -52,10 +65,17 @@ const CarDevPortfolio = () => {
       };
 
       recognitionRef.current.onend = () => {
-        setIsListening(false);
+        // Solo detener si el usuario realmente quiere parar
+        if (isListening) {
+          try {
+            recognitionRef.current.start(); // Reiniciar automáticamente
+          } catch (error) {
+            setIsListening(false);
+          }
+        }
       };
     }
-  }, []);
+  }, [isListening]);
 
   const toggleListening = () => {
     if (!recognitionRef.current) {
@@ -77,9 +97,24 @@ const CarDevPortfolio = () => {
     }
   };
 
-  const speak = async (text) => {
+  const speak = async (text, messageIndex) => {
     try {
+      // Si ya está reproduciendo este mensaje, pausar
+      if (playingMessageIndex === messageIndex && audioRef.current) {
+        audioRef.current.pause();
+        setIsSpeaking(false);
+        setPlayingMessageIndex(null);
+        return;
+      }
+
+      // Si hay otro audio reproduciéndose, detenerlo
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+
       setIsSpeaking(true);
+      setPlayingMessageIndex(messageIndex);
 
       // Llamar a tu API de ElevenLabs
       const response = await fetch('/api/tts', {
@@ -100,15 +135,20 @@ const CarDevPortfolio = () => {
       const audioBlob = base64ToBlob(data.audio, 'audio/mpeg');
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
+      audioRef.current = audio;
       
       audio.onended = () => {
         setIsSpeaking(false);
+        setPlayingMessageIndex(null);
         URL.revokeObjectURL(audioUrl);
+        audioRef.current = null;
       };
       
       audio.onerror = () => {
         setIsSpeaking(false);
+        setPlayingMessageIndex(null);
         URL.revokeObjectURL(audioUrl);
+        audioRef.current = null;
       };
       
       await audio.play();
@@ -116,6 +156,7 @@ const CarDevPortfolio = () => {
     } catch (error) {
       console.error('Error playing audio:', error);
       setIsSpeaking(false);
+      setPlayingMessageIndex(null);
     }
   };
 
@@ -201,7 +242,7 @@ Responde de forma conversacional y estratégica:`
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      speak(data.content[0].text);
+      // ✅ NO llamar a speak() automáticamente - el usuario decide
     } catch (error) {
       console.error('Error:', error);
       const errorMessage = {
@@ -538,8 +579,8 @@ Responde de forma conversacional y estratégica:`
               <p className="text-cyan-400 font-semibold text-lg mb-1">Carla IA</p>
               <p className="text-gray-400 text-sm">
                 {isLoading && '💭 Pensando...'}
-                {isSpeaking && '🗣️ Hablando...'}
-                {isListening && '👂 Escuchando...'}
+                {isSpeaking && '🔊 Reproduciendo audio...'}
+                {isListening && '🎤 Escuchando...'}
                 {!isLoading && !isSpeaking && !isListening && '✨ Lista para conversar'}
               </p>
             </div>
@@ -572,13 +613,34 @@ Responde de forma conversacional y estratégica:`
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[80%] p-4 rounded-2xl ${
+                    className={`max-w-[80%] ${
                       msg.role === 'user'
-                        ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white'
-                        : 'bg-white/10 backdrop-blur-sm border border-white/20'
+                        ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white p-4 rounded-2xl'
+                        : 'bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl'
                     }`}
                   >
-                    {msg.content}
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1 p-4">
+                        {msg.content}
+                      </div>
+                      {msg.role === 'assistant' && (
+                        <button
+                          onClick={() => speak(msg.content, idx)}
+                          className={`mt-4 mr-3 p-2 rounded-lg transition flex-shrink-0 ${
+                            playingMessageIndex === idx
+                              ? 'bg-cyan-500 hover:bg-cyan-600 animate-pulse'
+                              : 'bg-white/10 hover:bg-white/20 border border-white/20'
+                          }`}
+                          title={playingMessageIndex === idx ? 'Pausar audio' : 'Escuchar respuesta'}
+                        >
+                          {playingMessageIndex === idx ? (
+                            <VolumeX className="w-5 h-5 text-white" />
+                          ) : (
+                            <Volume2 className="w-5 h-5 text-cyan-400" />
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -633,7 +695,7 @@ Responde de forma conversacional y estratégica:`
                   </div>
                   
                   <p className="text-cyan-100 text-sm text-center mt-4 font-medium">
-                    🎤 Habla ahora... Tu mensaje se enviará automáticamente
+                    🎤 Hablando... Presiona "Detener" cuando termines
                   </p>
                 </div>
               </div>
@@ -671,12 +733,12 @@ Responde de forma conversacional y estratégica:`
               </div>
               {!isListening && !isSpeaking && (
                 <p className="text-xs text-gray-400 mt-2 text-center">
-                  💡 Haz clic en el micrófono para grabar tu pregunta por voz
+                  💡 Usa el micrófono para grabar tu pregunta • Haz clic en <Volume2 className="w-3 h-3 inline" /> para escuchar respuestas
                 </p>
               )}
               {isSpeaking && (
                 <p className="text-xs text-cyan-400 mt-2 text-center animate-pulse">
-                  🔊 Carla está respondiendo por voz...
+                  🔊 Reproduciendo audio de Carla...
                 </p>
               )}
             </div>
@@ -794,3 +856,4 @@ Responde de forma conversacional y estratégica:`
 };
 
 export default CarDevPortfolio;
+
