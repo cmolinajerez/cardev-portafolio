@@ -111,7 +111,7 @@ const CarDevPortfolio = () => {
           messages: [
             {
               role: 'user',
-              content: `Eres Carla Pamela Molina Jerez hablando en PRIMERA PERSONA. Estás en tu portafolio conversacional haciendo una "entrevista" bidireccional con un visitante potencial (recruiter, cliente, empresa).
+              content: `Eres Carla Pamela Molina Jerez hablando en PRIMERA PERSONA. Estás en tu portfolio conversacional haciendo una "entrevista" bidireccional con un visitante potencial (recruiter, cliente, empresa).
 
 TU OBJETIVO: Responder sus preguntas Y hacer preguntas estratégicas para entender qué buscan y cómo puedes ayudarles.
 
@@ -509,7 +509,7 @@ Responde de forma conversacional y estratégica:`
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl">
+          <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl relative">
             <div className="h-[500px] overflow-y-auto p-6 space-y-4">
               {messages.length === 0 && (
                 <div className="text-center text-gray-400 mt-32">
@@ -556,16 +556,59 @@ Responde de forma conversacional y estratégica:`
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Floating Recording Panel - Similar to ChatGPT */}
+            {isListening && (
+              <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md">
+                <div className="bg-gradient-to-r from-cyan-500/15 to-blue-500/15 backdrop-blur-xl border-2 border-cyan-400/60 rounded-2xl p-6 shadow-2xl shadow-cyan-500/20 animate-pulse-slow">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="w-4 h-4 bg-cyan-400 rounded-full animate-pulse shadow-lg shadow-cyan-400/50"></div>
+                        <div className="absolute inset-0 w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
+                      </div>
+                      <span className="text-white font-semibold">Grabando...</span>
+                    </div>
+                    <button
+                      onClick={toggleListening}
+                      className="bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2 shadow-lg shadow-cyan-500/30"
+                    >
+                      <MicOff className="w-4 h-4" />
+                      Detener
+                    </button>
+                  </div>
+                  
+                  {/* Waveform Visualization */}
+                  <div className="flex items-center justify-center gap-1 h-12">
+                    {[...Array(20)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-1 bg-gradient-to-t from-cyan-400 to-teal-300 rounded-full shadow-sm shadow-cyan-400/50"
+                        style={{
+                          height: '100%',
+                          animation: `wave-recording 0.8s ease-in-out ${i * 0.05}s infinite`,
+                          opacity: 0.8
+                        }}
+                      ></div>
+                    ))}
+                  </div>
+                  
+                  <p className="text-cyan-100 text-sm text-center mt-4 font-medium">
+                    🎤 Habla ahora... Tu mensaje se enviará automáticamente
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="border-t border-white/20 p-4 bg-white/5">
               <div className="flex gap-2">
                 <button
                   onClick={toggleListening}
                   className={`p-3 rounded-xl transition ${
                     isListening
-                      ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+                      ? 'bg-gradient-to-r from-cyan-500 to-teal-500 shadow-lg shadow-cyan-500/30 animate-pulse'
                       : 'bg-white/10 hover:bg-white/20 border border-white/20'
                   }`}
-                  title={isListening ? 'Detener grabación' : 'Hablar'}
+                  title={isListening ? 'Detener grabación' : 'Iniciar grabación de voz'}
                 >
                   {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                 </button>
@@ -576,6 +619,7 @@ Responde de forma conversacional y estratégica:`
                   onKeyPress={handleKeyPress}
                   placeholder="Escribe tu pregunta o usa el micrófono..."
                   className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500 transition backdrop-blur-sm"
+                  disabled={isListening}
                 />
                 <button
                   onClick={sendMessage}
@@ -585,11 +629,16 @@ Responde de forma conversacional y estratégica:`
                   <Send className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-xs text-gray-400 mt-2 text-center">
-                {isListening && '🎤 Escuchando... Habla ahora'}
-                {isSpeaking && '🔊 Respondiendo por voz...'}
-                {!isListening && !isSpeaking && '💡 Usa Chrome o Edge para mejor experiencia con voz'}
-              </p>
+              {!isListening && !isSpeaking && (
+                <p className="text-xs text-gray-400 mt-2 text-center">
+                  💡 Haz clic en el micrófono para grabar tu pregunta por voz
+                </p>
+              )}
+              {isSpeaking && (
+                <p className="text-xs text-cyan-400 mt-2 text-center animate-pulse">
+                  🔊 Carla está respondiendo por voz...
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -661,6 +710,17 @@ Responde de forma conversacional y estratégica:`
           50% { height: 20px; }
         }
         
+        @keyframes wave-recording {
+          0%, 100% { 
+            height: 20%;
+            opacity: 0.5;
+          }
+          50% { 
+            height: 80%;
+            opacity: 1;
+          }
+        }
+        
         @keyframes scan {
           0% { top: -10%; }
           100% { top: 110%; }
@@ -672,6 +732,21 @@ Responde de forma conversacional y estratégica:`
           40% { transform: translate(-2px, -2px); }
           60% { transform: translate(2px, 2px); }
           80% { transform: translate(2px, -2px); }
+        }
+        
+        @keyframes animate-pulse-slow {
+          0%, 100% { 
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% { 
+            opacity: 0.9;
+            transform: scale(1.02);
+          }
+        }
+        
+        .animate-pulse-slow {
+          animation: animate-pulse-slow 2s ease-in-out infinite;
         }
       `}</style>
     </div>
