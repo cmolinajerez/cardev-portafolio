@@ -12,6 +12,7 @@ const CarDevPortfolio = () => {
   const [playingMessageIndex, setPlayingMessageIndex] = useState(null);
   const [playingVoiceMode, setPlayingVoiceMode] = useState(null); // 'browser' o 'premium'
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [wasListeningBeforeAI, setWasListeningBeforeAI] = useState(false);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const audioRef = useRef(null);
@@ -24,12 +25,16 @@ const CarDevPortfolio = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true; // ✅ No se detiene automáticamente
-      recognitionRef.current.interimResults = true; // ✅ Muestra resultados mientras hablas
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'es-ES';
 
       recognitionRef.current.onresult = (event) => {
-        // Obtener el texto final (no interim)
+        // CRÍTICO: No procesar resultados si la IA está hablando
+        if (isSpeaking) {
+          return; // Ignorar todo mientras la IA habla
+        }
+        
         let finalTranscript = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
           if (event.results[i].isFinal) {
@@ -45,9 +50,8 @@ const CarDevPortfolio = () => {
       recognitionRef.current.onerror = (event) => {
         console.error('Error de reconocimiento de voz:', event.error);
         
-        // No detener la grabación por errores menores
         if (event.error === 'no-speech' || event.error === 'audio-capture') {
-          return; // Continuar escuchando
+          return;
         }
         
         setIsListening(false);
@@ -67,17 +71,23 @@ const CarDevPortfolio = () => {
       };
 
       recognitionRef.current.onend = () => {
-        // Solo detener si el usuario realmente quiere parar
-        if (isListening) {
+        // CRÍTICO: Solo reiniciar si:
+        // 1. El usuario quiere seguir grabando (isListening = true)
+        // 2. La IA NO está hablando (isSpeaking = false)
+        if (isListening && !isSpeaking) {
           try {
-            recognitionRef.current.start(); // Reiniciar automáticamente
+            recognitionRef.current.start();
           } catch (error) {
+            console.error('Error al reiniciar reconocimiento:', error);
             setIsListening(false);
           }
+        } else {
+          // Si la IA está hablando, definitivamente detener
+          setIsListening(false);
         }
       };
     }
-  }, [isListening]);
+  }, [isListening, isSpeaking]); // ⚠️ IMPORTANTE: Agregamos isSpeaking como dependencia
 
   const toggleListening = () => {
     if (!recognitionRef.current) {
@@ -86,9 +96,17 @@ const CarDevPortfolio = () => {
     }
 
     if (isListening) {
+      // Usuario quiere DETENER la grabación
       recognitionRef.current.stop();
       setIsListening(false);
     } else {
+      // Usuario quiere INICIAR la grabación
+      // CRÍTICO: No permitir si la IA está hablando
+      if (isSpeaking) {
+        alert('⏸️ Espera a que termine de hablar para grabar tu pregunta');
+        return;
+      }
+      
       try {
         recognitionRef.current.start();
         setIsListening(true);
@@ -116,20 +134,25 @@ const CarDevPortfolio = () => {
         setPlayingVoiceMode(null);
         setIsGeneratingAudio(false);
         
-        // CRÍTICO: Reiniciar reconocimiento de voz si estaba activo
-        if (isListening && recognitionRef.current) {
+        // Restaurar grabación si estaba activa antes
+        if (wasListeningBeforeAI && recognitionRef.current) {
           try {
             recognitionRef.current.start();
+            setIsListening(true);
           } catch (e) {
-            // Ya está corriendo
+            console.error('Error al reiniciar grabación:', e);
           }
+          setWasListeningBeforeAI(false);
         }
         return;
       }
 
-      // CRÍTICO: Detener grabación de voz mientras habla la IA
-      if (isListening && recognitionRef.current) {
-        recognitionRef.current.stop();
+      // CRÍTICO: Recordar si el usuario estaba grabando y DETENERLO
+      if (isListening) {
+        setWasListeningBeforeAI(true);
+        if (recognitionRef.current) {
+          recognitionRef.current.stop();
+        }
         setIsListening(false);
       }
 
@@ -149,7 +172,6 @@ const CarDevPortfolio = () => {
       if (voiceMode === 'browser') {
         const utterance = new SpeechSynthesisUtterance(text);
         
-        // Buscar las mejores voces disponibles en español
         const voices = window.speechSynthesis.getVoices();
         const preferredVoices = [
           'Google español',
@@ -180,12 +202,16 @@ const CarDevPortfolio = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
           setPlayingVoiceMode(null);
+          
+          // NO restaurar grabación automáticamente
+          setWasListeningBeforeAI(false);
         };
         
         utterance.onerror = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
           setPlayingVoiceMode(null);
+          setWasListeningBeforeAI(false);
         };
         
         window.speechSynthesis.speak(utterance);
@@ -221,6 +247,9 @@ const CarDevPortfolio = () => {
           setPlayingVoiceMode(null);
           URL.revokeObjectURL(audioUrl);
           audioRef.current = null;
+          
+          // NO restaurar grabación automáticamente
+          setWasListeningBeforeAI(false);
         };
         
         audio.onerror = () => {
@@ -230,6 +259,7 @@ const CarDevPortfolio = () => {
           setIsGeneratingAudio(false);
           URL.revokeObjectURL(audioUrl);
           audioRef.current = null;
+          setWasListeningBeforeAI(false);
         };
         
         await audio.play();
@@ -241,6 +271,7 @@ const CarDevPortfolio = () => {
       setPlayingMessageIndex(null);
       setPlayingVoiceMode(null);
       setIsGeneratingAudio(false);
+      setWasListeningBeforeAI(false);
     }
   };
 
@@ -814,12 +845,21 @@ Responde de forma conversacional y estratégica:`
               <div className="flex gap-2">
                 <button
                   onClick={toggleListening}
+                  disabled={isSpeaking}
                   className={`p-3 rounded-xl transition ${
                     isListening
                       ? 'bg-gradient-to-r from-cyan-500 to-teal-500 shadow-lg shadow-cyan-500/30 animate-pulse'
+                      : isSpeaking
+                      ? 'bg-white/5 border border-white/10 opacity-50 cursor-not-allowed'
                       : 'bg-white/10 hover:bg-white/20 border border-white/20'
                   }`}
-                  title={isListening ? 'Detener grabación' : 'Iniciar grabación de voz'}
+                  title={
+                    isSpeaking 
+                      ? 'Espera a que termine de hablar' 
+                      : isListening 
+                      ? 'Detener grabación' 
+                      : 'Iniciar grabación de voz'
+                  }
                 >
                   {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                 </button>
@@ -830,11 +870,11 @@ Responde de forma conversacional y estratégica:`
                   onKeyPress={handleKeyPress}
                   placeholder="Escribe tu pregunta o usa el micrófono..."
                   className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500 transition backdrop-blur-sm"
-                  disabled={isListening}
+                  disabled={isListening || isSpeaking}
                 />
                 <button
                   onClick={sendMessage}
-                  disabled={!input.trim() || isLoading}
+                  disabled={!input.trim() || isLoading || isSpeaking}
                   className="bg-gradient-to-r from-cyan-500 to-purple-500 p-3 rounded-xl hover:shadow-lg hover:shadow-cyan-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-5 h-5" />
@@ -970,3 +1010,4 @@ Responde de forma conversacional y estratégica:`
 };
 
 export default CarDevPortfolio;
+
