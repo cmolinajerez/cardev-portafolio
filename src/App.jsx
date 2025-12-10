@@ -10,6 +10,8 @@ const CarDevPortfolio = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [playingMessageIndex, setPlayingMessageIndex] = useState(null);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [voiceMode, setVoiceMode] = useState('browser'); // 'browser' o 'premium'
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const audioRef = useRef(null);
@@ -102,8 +104,12 @@ const CarDevPortfolio = () => {
       // Si ya está reproduciendo este mensaje, pausar
       if (playingMessageIndex === messageIndex && audioRef.current) {
         audioRef.current.pause();
+        if (window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
         setIsSpeaking(false);
         setPlayingMessageIndex(null);
+        setIsGeneratingAudio(false);
         return;
       }
 
@@ -112,51 +118,107 @@ const CarDevPortfolio = () => {
         audioRef.current.pause();
         audioRef.current = null;
       }
-
-      setIsSpeaking(true);
-      setPlayingMessageIndex(messageIndex);
-
-      // Llamar a tu API de ElevenLabs
-      const response = await fetch('/api/tts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text })
-      });
-
-      if (!response.ok) {
-        throw new Error('Error generating audio');
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
       }
 
-      const data = await response.json();
-      
-      // Convertir Base64 a audio y reproducirlo
-      const audioBlob = base64ToBlob(data.audio, 'audio/mpeg');
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
-      
-      audio.onended = () => {
-        setIsSpeaking(false);
-        setPlayingMessageIndex(null);
-        URL.revokeObjectURL(audioUrl);
-        audioRef.current = null;
-      };
-      
-      audio.onerror = () => {
-        setIsSpeaking(false);
-        setPlayingMessageIndex(null);
-        URL.revokeObjectURL(audioUrl);
-        audioRef.current = null;
-      };
-      
-      await audio.play();
+      setPlayingMessageIndex(messageIndex);
+
+      // MODO 1: Voz del navegador (rápida)
+      if (voiceMode === 'browser') {
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Buscar las mejores voces disponibles en español
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoices = [
+          'Google español',
+          'Microsoft Helena',
+          'Mónica',
+          'Paulina',
+          'Google español de Estados Unidos',
+          'Microsoft Laura'
+        ];
+        
+        // Intentar encontrar una voz preferida
+        utterance.voice = voices.find(voice => 
+          preferredVoices.some(pref => voice.name.includes(pref))
+        );
+        
+        // Si no encuentra ninguna, usar la primera en español
+        if (!utterance.voice) {
+          utterance.voice = voices.find(voice => voice.lang.startsWith('es'));
+        }
+        
+        utterance.lang = 'es-ES';
+        utterance.rate = 0.95;
+        utterance.pitch = 1.1;
+        
+        utterance.onstart = () => {
+          setIsSpeaking(true);
+        };
+        
+        utterance.onend = () => {
+          setIsSpeaking(false);
+          setPlayingMessageIndex(null);
+        };
+        
+        utterance.onerror = () => {
+          setIsSpeaking(false);
+          setPlayingMessageIndex(null);
+        };
+        
+        window.speechSynthesis.speak(utterance);
+      } 
+      // MODO 2: Voz Premium ElevenLabs (tu voz clonada)
+      else if (voiceMode === 'premium') {
+        setIsGeneratingAudio(true);
+        setIsSpeaking(true);
+
+        // Llamar a tu API de ElevenLabs
+        const response = await fetch('/api/tts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text })
+        });
+
+        if (!response.ok) {
+          throw new Error('Error generating audio');
+        }
+
+        const data = await response.json();
+        setIsGeneratingAudio(false);
+        
+        // Convertir Base64 a audio y reproducirlo
+        const audioBlob = base64ToBlob(data.audio, 'audio/mpeg');
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+        
+        audio.onended = () => {
+          setIsSpeaking(false);
+          setPlayingMessageIndex(null);
+          URL.revokeObjectURL(audioUrl);
+          audioRef.current = null;
+        };
+        
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          setPlayingMessageIndex(null);
+          setIsGeneratingAudio(false);
+          URL.revokeObjectURL(audioUrl);
+          audioRef.current = null;
+        };
+        
+        await audio.play();
+      }
       
     } catch (error) {
       console.error('Error playing audio:', error);
       setIsSpeaking(false);
       setPlayingMessageIndex(null);
+      setIsGeneratingAudio(false);
     }
   };
 
@@ -192,7 +254,7 @@ const CarDevPortfolio = () => {
           messages: [
             {
               role: 'user',
-              content: `Eres Carla Pamela Molina Jerez hablando en PRIMERA PERSONA. Estás en tu portafolio conversacional haciendo una "entrevista" bidireccional con un visitante potencial (recruiter, cliente, empresa).
+              content: `Eres Carla Pamela Molina Jerez hablando en PRIMERA PERSONA. Estás en tu portfolio conversacional haciendo una "entrevista" bidireccional con un visitante potencial (recruiter, cliente, empresa).
 
 TU OBJETIVO: Responder sus preguntas Y hacer preguntas estratégicas para entender qué buscan y cómo puedes ayudarles.
 
@@ -579,11 +641,59 @@ Responde de forma conversacional y estratégica:`
               <p className="text-cyan-400 font-semibold text-lg mb-1">Carla IA</p>
               <p className="text-gray-400 text-sm">
                 {isLoading && '💭 Pensando...'}
-                {isSpeaking && '🔊 Reproduciendo audio...'}
+                {isSpeaking && !isGeneratingAudio && '🔊 Reproduciendo audio...'}
+                {isGeneratingAudio && '🎵 Generando mi voz clonada...'}
                 {isListening && '🎤 Escuchando...'}
-                {!isLoading && !isSpeaking && !isListening && '✨ Lista para conversar'}
+                {!isLoading && !isSpeaking && !isListening && !isGeneratingAudio && '✨ Lista para conversar'}
               </p>
             </div>
+            
+            {/* Voice Mode Selector */}
+            <div className="w-full">
+              <p className="text-xs text-gray-400 text-center mb-3">Elige calidad de voz:</p>
+              <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-1 flex gap-1">
+                <button
+                  onClick={() => setVoiceMode('browser')}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                    voiceMode === 'browser'
+                      ? 'bg-gradient-to-r from-cyan-500 to-teal-500 text-white'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-lg">⚡</span>
+                    <span className="text-xs">Rápida</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setVoiceMode('premium')}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                    voiceMode === 'premium'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-lg">🎙️</span>
+                    <span className="text-xs">Premium</span>
+                  </div>
+                </button>
+              </div>
+              
+              {/* Explicación del modo seleccionado */}
+              <div className="mt-3 text-center">
+                {voiceMode === 'browser' ? (
+                  <p className="text-xs text-gray-400">
+                    ⚡ Voz del navegador - Instantánea
+                  </p>
+                ) : (
+                  <p className="text-xs text-cyan-400">
+                    🎙️ Mi voz real clonada con IA
+                  </p>
+                )}
+              </div>
+            </div>
+            
             <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 text-xs text-gray-400">
               <p className="mb-2 text-cyan-400 font-semibold">💡 Personaliza tu avatar:</p>
               <p>Ve al código y reemplaza AVATAR_IMAGE_URL con tu imagen holográfica personalizada.</p>
@@ -626,14 +736,25 @@ Responde de forma conversacional y estratégica:`
                       {msg.role === 'assistant' && (
                         <button
                           onClick={() => speak(msg.content, idx)}
+                          disabled={isGeneratingAudio && playingMessageIndex === idx}
                           className={`mt-4 mr-3 p-2 rounded-lg transition flex-shrink-0 ${
-                            playingMessageIndex === idx
+                            isGeneratingAudio && playingMessageIndex === idx
+                              ? 'bg-yellow-500/20 border border-yellow-500/50'
+                              : playingMessageIndex === idx
                               ? 'bg-cyan-500 hover:bg-cyan-600 animate-pulse'
                               : 'bg-white/10 hover:bg-white/20 border border-white/20'
                           }`}
-                          title={playingMessageIndex === idx ? 'Pausar audio' : 'Escuchar respuesta'}
+                          title={
+                            isGeneratingAudio && playingMessageIndex === idx
+                              ? 'Generando audio...'
+                              : playingMessageIndex === idx 
+                              ? 'Pausar audio' 
+                              : 'Escuchar respuesta'
+                          }
                         >
-                          {playingMessageIndex === idx ? (
+                          {isGeneratingAudio && playingMessageIndex === idx ? (
+                            <div className="w-5 h-5 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+                          ) : playingMessageIndex === idx ? (
                             <VolumeX className="w-5 h-5 text-white" />
                           ) : (
                             <Volume2 className="w-5 h-5 text-cyan-400" />
@@ -731,12 +852,17 @@ Responde de forma conversacional y estratégica:`
                   <Send className="w-5 h-5" />
                 </button>
               </div>
-              {!isListening && !isSpeaking && (
+              {!isListening && !isSpeaking && !isGeneratingAudio && (
                 <p className="text-xs text-gray-400 mt-2 text-center">
-                  💡 Usa el micrófono para grabar tu pregunta • Haz clic en <Volume2 className="w-3 h-3 inline" /> para escuchar respuestas
+                  💡 Usa el micrófono para grabar • Haz clic en <Volume2 className="w-3 h-3 inline" /> para escuchar • {voiceMode === 'premium' ? '🎙️ Voz premium' : '⚡ Voz rápida'}
                 </p>
               )}
-              {isSpeaking && (
+              {isGeneratingAudio && (
+                <p className="text-xs text-yellow-400 mt-2 text-center animate-pulse">
+                  🎵 Generando mi voz clonada con IA... Vale la espera
+                </p>
+              )}
+              {isSpeaking && !isGeneratingAudio && (
                 <p className="text-xs text-cyan-400 mt-2 text-center animate-pulse">
                   🔊 Reproduciendo audio de Carla...
                 </p>
@@ -856,4 +982,3 @@ Responde de forma conversacional y estratégica:`
 };
 
 export default CarDevPortfolio;
-
