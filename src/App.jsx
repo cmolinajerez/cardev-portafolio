@@ -1,27 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSquare, Sparkles, Zap } from 'lucide-react';
 
-// ============================================
-// IMPORTANTE: AVATAR HOLOGRÁFICO
-// ============================================
-// Para obtener tu avatar personalizado:
-// 
-// OPCIÓN 1 - Generar con IA (RECOMENDADO):
-// 1. Ve a https://www.bing.com/create (gratis con Microsoft)
-// 2. Prompt: "Professional holographic AI avatar of a woman with long wavy hair, 
-//    wireframe mesh face, glowing cyan/turquoise color, futuristic digital assistant, 
-//    front facing portrait, transparent background, tech aesthetic"
-// 3. Descarga la imagen
-// 4. Súbela a un hosting (Imgur, Cloudinary) o usa base64
-// 5. Reemplaza AVATAR_IMAGE_URL abajo con tu URL
-//
-// OPCIÓN 2 - Usar imagen stock:
-// Busca en Freepik/Unsplash: "holographic avatar woman AI"
-//
-// OPCIÓN 3 - Usar las imágenes que me mostraste:
-// Si encuentras esas imágenes sin marca de agua, úsalas directamente
-// ============================================
-
 const AVATAR_IMAGE_URL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'%3E%3Crect fill='%23334155' width='400' height='500'/%3E%3Ctext x='200' y='250' text-anchor='middle' fill='%2306b6d4' font-size='16' font-family='Arial'%3ETu Avatar Aquí%3C/text%3E%3C/svg%3E";
 
 const CarDevPortfolio = () => {
@@ -99,47 +78,6 @@ const CarDevPortfolio = () => {
   };
 
   const speak = async (text) => {
-    // OPCIÓN 1: ElevenLabs (voz natural/clonada) - Descomenta cuando tengas API key
-    // const ELEVENLABS_API_KEY = 'tu_api_key_aqui';
-    // const VOICE_ID = 'tu_voice_id_aqui';
-    
-    /*
-    try {
-      setIsSpeaking(true);
-      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'audio/mpeg',
-          'Content-Type': 'application/json',
-          'xi-api-key': ELEVENLABS_API_KEY
-        },
-        body: JSON.stringify({
-          text: text,
-          model_id: 'eleven_multilingual_v2',
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.75
-          }
-        })
-      });
-      
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      
-      audio.onended = () => {
-        setIsSpeaking(false);
-        URL.revokeObjectURL(audioUrl);
-      };
-      
-      audio.play();
-    } catch (error) {
-      console.error('Error con ElevenLabs:', error);
-      setIsSpeaking(false);
-    }
-    */
-    
-    // OPCIÓN 2: Web Speech API (gratis pero robótica) - ACTUAL
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'es-ES';
@@ -164,14 +102,12 @@ const CarDevPortfolio = () => {
     try {
       const conversationHistory = messages.map(m => `${m.role === 'user' ? 'Visitante' : 'Yo'}: ${m.content}`).join('\n');
       
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
           messages: [
             {
               role: 'user',
@@ -227,6 +163,7 @@ Responde de forma conversacional y estratégica:`
       setMessages(prev => [...prev, assistantMessage]);
       speak(data.content[0].text);
     } catch (error) {
+      console.error('Error:', error);
       const errorMessage = {
         role: 'assistant',
         content: 'Disculpa, tuve un problema al procesar tu pregunta. ¿Podrías intentarlo de nuevo?'
@@ -244,21 +181,16 @@ Responde de forma conversacional y estratégica:`
     }
   };
 
-  // Holographic Avatar Component with Image
   const HolographicAvatar = ({ size = 'large', isThinking = false, isTalking = false }) => {
     const dimension = size === 'large' ? 'w-72 h-72' : 'w-32 h-32';
     
     return (
       <div className={`relative ${dimension}`}>
-        {/* Glow effect */}
         <div className={`absolute inset-0 bg-gradient-to-r from-cyan-400 via-teal-400 to-cyan-500 rounded-full blur-3xl opacity-40 ${isTalking ? 'animate-pulse' : ''}`}></div>
         <div className={`absolute inset-0 bg-cyan-400 rounded-full blur-2xl opacity-20 ${isTalking ? 'animate-pulse' : ''}`} style={{animationDelay: '0.3s'}}></div>
         
-        {/* Main avatar container */}
         <div className="relative w-full h-full">
-          {/* Avatar image with holographic effects */}
           <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-cyan-400/50">
-            {/* Background image */}
             <img 
               src={AVATAR_IMAGE_URL}
               alt="Carla AI Avatar"
@@ -269,10 +201,8 @@ Responde de forma conversacional y estratégica:`
               }}
             />
             
-            {/* Holographic overlay effects */}
             <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/20 via-transparent to-cyan-500/20"></div>
             
-            {/* Wireframe grid overlay */}
             <div 
               className="absolute inset-0 opacity-30"
               style={{
@@ -284,10 +214,7 @@ Responde de forma conversacional y estratégica:`
               }}
             ></div>
             
-            {/* Scanning line effect */}
-            <div 
-              className="absolute inset-0 overflow-hidden"
-            >
+            <div className="absolute inset-0 overflow-hidden">
               <div 
                 className="absolute w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60"
                 style={{
@@ -296,7 +223,6 @@ Responde de forma conversacional y estratégica:`
               ></div>
             </div>
             
-            {/* Glitch effect when talking */}
             {isTalking && (
               <div 
                 className="absolute inset-0 bg-cyan-400/10"
@@ -307,7 +233,6 @@ Responde de forma conversacional y estratégica:`
             )}
           </div>
           
-          {/* Floating particles */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 200 200">
             {[...Array(8)].map((_, i) => {
               const angle = (i * 360) / 8;
@@ -334,7 +259,6 @@ Responde de forma conversacional y estratégica:`
               );
             })}
             
-            {/* Orbital rings */}
             <circle cx="100" cy="100" r="90" fill="none" stroke="url(#gradient1)" strokeWidth="1" opacity="0.3">
               <animateTransform
                 attributeName="transform"
@@ -369,7 +293,6 @@ Responde de forma conversacional y estratégica:`
             </defs>
           </svg>
           
-          {/* Thinking dots */}
           {isThinking && (
             <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 flex gap-2">
               {[...Array(3)].map((_, i) => (
@@ -384,7 +307,6 @@ Responde de forma conversacional y estratégica:`
             </div>
           )}
           
-          {/* Speaking indicator */}
           {isTalking && (
             <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex gap-1">
               {[...Array(4)].map((_, i) => (
@@ -406,13 +328,11 @@ Responde de forma conversacional y estratégica:`
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-      {/* Animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
       </div>
 
-      {/* Navigation */}
       <nav className="relative z-10 px-6 py-4 backdrop-blur-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
@@ -427,7 +347,6 @@ Responde de forma conversacional y estratégica:`
         </div>
       </nav>
 
-      {/* Hero Section */}
       <section className="relative z-10 px-6 py-20 max-w-6xl mx-auto">
         <div className="text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1 bg-cyan-500/20 border border-cyan-500/50 rounded-full text-cyan-400 text-sm mb-6">
@@ -459,13 +378,13 @@ Responde de forma conversacional y estratégica:`
             </div>
           </div>
           <div className="flex flex-wrap justify-center gap-4">
-            <a
+            
               href="#conversation"
               className="bg-gradient-to-r from-cyan-500 to-purple-500 px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-lg hover:shadow-cyan-500/50 transition"
             >
               Conversemos
             </a>
-            <a
+            
               href="#projects"
               className="border border-white/20 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white/5 transition"
             >
@@ -475,7 +394,6 @@ Responde de forma conversacional y estratégica:`
         </div>
       </section>
 
-      {/* About Section */}
       <section id="about" className="relative z-10 px-6 py-20 max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold mb-12 text-center">
           <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
@@ -498,7 +416,7 @@ Responde de forma conversacional y estratégica:`
             </p>
           </div>
           <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition">
-            <Award className="w-12 h-12 text-cyan-400 mb-4" />
+            <Award className="w-12 h-12 text-cyan-400" mb-4" />
             <h3 className="text-xl font-bold mb-3">Pedagogía Experto 1</h3>
             <p className="text-gray-300">
               15 años enseñando con certificación Experto 1. Capacidad única de explicar conceptos complejos y capacitar equipos en adopción tecnológica.
@@ -507,7 +425,6 @@ Responde de forma conversacional y estratégica:`
         </div>
       </section>
 
-      {/* Projects Section */}
       <section id="projects" className="relative z-10 px-6 py-20 max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold mb-12 text-center">
           <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
@@ -562,7 +479,6 @@ Responde de forma conversacional y estratégica:`
         </div>
       </section>
 
-      {/* Conversation Section - WITH HOLOGRAPHIC AVATAR */}
       <section id="conversation" className="relative z-10 px-6 py-20 max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4">
@@ -576,7 +492,6 @@ Responde de forma conversacional y estratégica:`
         </div>
 
         <div className="grid md:grid-cols-[320px_1fr] gap-8 items-start">
-          {/* Avatar Column */}
           <div className="flex flex-col items-center gap-6">
             <HolographicAvatar size="large" isThinking={isLoading} isTalking={isSpeaking} />
             <div className="text-center">
@@ -594,9 +509,7 @@ Responde de forma conversacional y estratégica:`
             </div>
           </div>
 
-          {/* Chat Column */}
           <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl">
-            {/* Messages */}
             <div className="h-[500px] overflow-y-auto p-6 space-y-4">
               {messages.length === 0 && (
                 <div className="text-center text-gray-400 mt-32">
@@ -643,7 +556,6 @@ Responde de forma conversacional y estratégica:`
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
             <div className="border-t border-white/20 p-4 bg-white/5">
               <div className="flex gap-2">
                 <button
@@ -683,7 +595,6 @@ Responde de forma conversacional y estratégica:`
         </div>
       </section>
 
-      {/* Services Section */}
       <section className="relative z-10 px-6 py-20 max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold mb-12 text-center">
           <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
@@ -712,7 +623,6 @@ Responde de forma conversacional y estratégica:`
         </div>
       </section>
 
-      {/* Contact Section */}
       <section id="contact" className="relative z-10 px-6 py-20 max-w-4xl mx-auto text-center">
         <h2 className="text-4xl font-bold mb-6">
           <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
@@ -723,13 +633,13 @@ Responde de forma conversacional y estratégica:`
           Estoy disponible para proyectos de implementación de IA, desarrollo web y consultoría.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          <a
+          
             href="mailto:carla@cardev.cl"
             className="bg-gradient-to-r from-cyan-500 to-purple-500 px-8 py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition"
           >
             Enviar email
           </a>
-          <a
+          
             href="https://www.linkedin.com/in/carla-molina"
             target="_blank"
             rel="noopener noreferrer"
@@ -740,7 +650,6 @@ Responde de forma conversacional y estratégica:`
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="relative z-10 px-6 py-8 border-t border-white/10 text-center text-gray-400">
         <p>© 2024 Carla Pamela Molina Jerez • CarDev • Construido con IA conversacional</p>
         <p className="text-xs mt-2">💡 Personaliza el avatar holográfico editando AVATAR_IMAGE_URL en el código</p>
