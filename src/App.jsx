@@ -10,9 +10,8 @@ const CarDevPortfolio = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [playingMessageIndex, setPlayingMessageIndex] = useState(null);
-  const [playingVoiceMode, setPlayingVoiceMode] = useState(null); // 'browser' o 'premium'
+  const [playingVoiceMode, setPlayingVoiceMode] = useState(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
-  const [wasListeningBeforeAI, setWasListeningBeforeAI] = useState(false);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const audioRef = useRef(null);
@@ -25,93 +24,51 @@ const CarDevPortfolio = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
+      
+      // SIMPLE: No continuo, solo una vez
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
       recognitionRef.current.lang = 'es-ES';
 
       recognitionRef.current.onresult = (event) => {
-        // CRÍTICO: No procesar resultados si la IA está hablando
-        if (isSpeaking) {
-          return; // Ignorar todo mientras la IA habla
-        }
-        
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          }
-        }
-        
-        if (finalTranscript) {
-          setInput(prev => prev + ' ' + finalTranscript);
-        }
+        const transcript = event.results[0][0].transcript;
+        setInput(prev => prev + ' ' + transcript);
       };
 
       recognitionRef.current.onerror = (event) => {
         console.error('Error de reconocimiento de voz:', event.error);
-        
-        if (event.error === 'no-speech' || event.error === 'audio-capture') {
-          return;
-        }
-        
         setIsListening(false);
         
-        let errorMessage = 'Error con el micrófono. ';
-        switch(event.error) {
-          case 'not-allowed':
-            errorMessage += 'Por favor, permite el acceso al micrófono en la configuración del navegador.';
-            break;
-          case 'network':
-            errorMessage += 'Error de conexión. Verifica tu internet.';
-            break;
-          default:
-            errorMessage += 'Intenta de nuevo o usa el teclado.';
+        if (event.error === 'not-allowed') {
+          alert('Por favor, permite el acceso al micrófono en la configuración del navegador.');
         }
-        alert(errorMessage);
       };
 
       recognitionRef.current.onend = () => {
-        // CRÍTICO: Solo reiniciar si:
-        // 1. El usuario quiere seguir grabando (isListening = true)
-        // 2. La IA NO está hablando (isSpeaking = false)
-        if (isListening && !isSpeaking) {
-          try {
-            recognitionRef.current.start();
-          } catch (error) {
-            console.error('Error al reiniciar reconocimiento:', error);
-            setIsListening(false);
-          }
-        } else {
-          // Si la IA está hablando, definitivamente detener
-          setIsListening(false);
-        }
+        // SIMPLE: Cuando termina, se detiene. No más.
+        setIsListening(false);
       };
     }
-  }, [isListening, isSpeaking]); // ⚠️ IMPORTANTE: Agregamos isSpeaking como dependencia
+  }, []);
 
   const toggleListening = () => {
     if (!recognitionRef.current) {
-      alert('❌ Tu navegador no soporta reconocimiento de voz.\n\n✅ Solución: Usa Chrome o Edge (navegadores recomendados).\n\nMientras tanto, puedes escribir tu pregunta. 😊');
+      alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.');
       return;
     }
 
     if (isListening) {
-      // Usuario quiere DETENER la grabación
+      // DETENER - Simple y directo
       recognitionRef.current.stop();
       setIsListening(false);
     } else {
-      // Usuario quiere INICIAR la grabación
-      // CRÍTICO: No permitir si la IA está hablando
-      if (isSpeaking) {
-        alert('⏸️ Espera a que termine de hablar para grabar tu pregunta');
-        return;
-      }
-      
+      // INICIAR - Simple y directo
       try {
         recognitionRef.current.start();
         setIsListening(true);
       } catch (error) {
-        alert('Error al iniciar el micrófono. Asegúrate de:\n\n1. Permitir acceso al micrófono en tu navegador\n2. Usar Chrome o Edge\n3. Estar en una página con HTTPS (después del deploy funcionará mejor)');
+        console.error('Error al iniciar:', error);
+        alert('Error al iniciar el micrófono. Verifica los permisos.');
         setIsListening(false);
       }
     }
@@ -133,27 +90,7 @@ const CarDevPortfolio = () => {
         setPlayingMessageIndex(null);
         setPlayingVoiceMode(null);
         setIsGeneratingAudio(false);
-        
-        // Restaurar grabación si estaba activa antes
-        if (wasListeningBeforeAI && recognitionRef.current) {
-          try {
-            recognitionRef.current.start();
-            setIsListening(true);
-          } catch (e) {
-            console.error('Error al reiniciar grabación:', e);
-          }
-          setWasListeningBeforeAI(false);
-        }
         return;
-      }
-
-      // CRÍTICO: Recordar si el usuario estaba grabando y DETENERLO
-      if (isListening) {
-        setWasListeningBeforeAI(true);
-        if (recognitionRef.current) {
-          recognitionRef.current.stop();
-        }
-        setIsListening(false);
       }
 
       // Si hay otro audio reproduciéndose, detenerlo
@@ -202,16 +139,12 @@ const CarDevPortfolio = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
           setPlayingVoiceMode(null);
-          
-          // NO restaurar grabación automáticamente
-          setWasListeningBeforeAI(false);
         };
         
         utterance.onerror = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
           setPlayingVoiceMode(null);
-          setWasListeningBeforeAI(false);
         };
         
         window.speechSynthesis.speak(utterance);
@@ -247,9 +180,6 @@ const CarDevPortfolio = () => {
           setPlayingVoiceMode(null);
           URL.revokeObjectURL(audioUrl);
           audioRef.current = null;
-          
-          // NO restaurar grabación automáticamente
-          setWasListeningBeforeAI(false);
         };
         
         audio.onerror = () => {
@@ -259,7 +189,6 @@ const CarDevPortfolio = () => {
           setIsGeneratingAudio(false);
           URL.revokeObjectURL(audioUrl);
           audioRef.current = null;
-          setWasListeningBeforeAI(false);
         };
         
         await audio.play();
@@ -271,7 +200,6 @@ const CarDevPortfolio = () => {
       setPlayingMessageIndex(null);
       setPlayingVoiceMode(null);
       setIsGeneratingAudio(false);
-      setWasListeningBeforeAI(false);
     }
   };
 
@@ -835,7 +763,7 @@ Responde de forma conversacional y estratégica:`
                   </div>
                   
                   <p className="text-cyan-100 text-sm text-center mt-4 font-medium">
-                    🎤 Hablando... Presiona "Detener" cuando termines
+                    🎤 Habla tu pregunta... Al terminar, presiona "Detener"
                   </p>
                 </div>
               </div>
@@ -845,21 +773,12 @@ Responde de forma conversacional y estratégica:`
               <div className="flex gap-2">
                 <button
                   onClick={toggleListening}
-                  disabled={isSpeaking}
                   className={`p-3 rounded-xl transition ${
                     isListening
                       ? 'bg-gradient-to-r from-cyan-500 to-teal-500 shadow-lg shadow-cyan-500/30 animate-pulse'
-                      : isSpeaking
-                      ? 'bg-white/5 border border-white/10 opacity-50 cursor-not-allowed'
                       : 'bg-white/10 hover:bg-white/20 border border-white/20'
                   }`}
-                  title={
-                    isSpeaking 
-                      ? 'Espera a que termine de hablar' 
-                      : isListening 
-                      ? 'Detener grabación' 
-                      : 'Iniciar grabación de voz'
-                  }
+                  title={isListening ? 'Detener grabación' : 'Iniciar grabación de voz'}
                 >
                   {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                 </button>
@@ -870,11 +789,11 @@ Responde de forma conversacional y estratégica:`
                   onKeyPress={handleKeyPress}
                   placeholder="Escribe tu pregunta o usa el micrófono..."
                   className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500 transition backdrop-blur-sm"
-                  disabled={isListening || isSpeaking}
+                  disabled={isListening}
                 />
                 <button
                   onClick={sendMessage}
-                  disabled={!input.trim() || isLoading || isSpeaking}
+                  disabled={!input.trim() || isLoading}
                   className="bg-gradient-to-r from-cyan-500 to-purple-500 p-3 rounded-xl hover:shadow-lg hover:shadow-cyan-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-5 h-5" />
@@ -1010,4 +929,5 @@ Responde de forma conversacional y estratégica:`
 };
 
 export default CarDevPortfolio;
+
 
