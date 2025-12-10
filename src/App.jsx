@@ -3,7 +3,7 @@ import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSqua
 
 const AVATAR_IMAGE_URL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'%3E%3Crect fill='%23334155' width='400' height='500'/%3E%3Ctext x='200' y='250' text-anchor='middle' fill='%2306b6d4' font-size='16' font-family='Arial'%3ETu Avatar Aquí%3C/text%3E%3C/svg%3E";
 
-const CarDevPortfolio = () => {
+const PortafolioCarDev = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -15,6 +15,7 @@ const CarDevPortfolio = () => {
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const audioRef = useRef(null);
+  const shouldStopRecognition = useRef(false); // Flag para controlar si realmente queremos detener
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -25,14 +26,22 @@ const CarDevPortfolio = () => {
       const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       
-      // SIMPLE: No continuo, solo una vez
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
+      // CONTINUO: Graba sin detenerse por silencios
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'es-ES';
 
       recognitionRef.current.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        setInput(prev => prev + ' ' + transcript);
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
+        }
+        
+        if (finalTranscript) {
+          setInput(prev => (prev + ' ' + finalTranscript).trim());
+        }
       };
 
       recognitionRef.current.onerror = (event) => {
@@ -45,7 +54,7 @@ const CarDevPortfolio = () => {
       };
 
       recognitionRef.current.onend = () => {
-        // SIMPLE: Cuando termina, se detiene. No más.
+        // Simplemente detener - NO reiniciar automáticamente
         setIsListening(false);
       };
     }
@@ -58,11 +67,13 @@ const CarDevPortfolio = () => {
     }
 
     if (isListening) {
-      // DETENER - Simple y directo
+      // Usuario presionó "Detener" - marcar que SÍ queremos detener
+      shouldStopRecognition.current = true;
       recognitionRef.current.stop();
       setIsListening(false);
     } else {
-      // INICIAR - Simple y directo
+      // Usuario presionó "Iniciar" - marcar que NO queremos detener
+      shouldStopRecognition.current = false;
       try {
         recognitionRef.current.start();
         setIsListening(true);
@@ -235,7 +246,7 @@ const CarDevPortfolio = () => {
           messages: [
             {
               role: 'user',
-              content: `Eres Carla Pamela Molina Jerez hablando en PRIMERA PERSONA. Estás en tu portfolio conversacional haciendo una "entrevista" bidireccional con un visitante potencial (recruiter, cliente, empresa).
+              content: `Eres Carla Pamela Molina Jerez hablando en PRIMERA PERSONA. Estás en tu portafolio conversacional haciendo una "entrevista" bidireccional con un visitante potencial (recruiter, cliente, empresa).
 
 TU OBJETIVO: Responder sus preguntas Y hacer preguntas estratégicas para entender qué buscan y cómo puedes ayudarles.
 
@@ -928,6 +939,7 @@ Responde de forma conversacional y estratégica:`
   );
 };
 
-export default CarDevPortfolio;
+export default PortafolioCarDev;
+
 
 
