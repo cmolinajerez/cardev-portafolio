@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSquare, Sparkles, Zap, Volume2, VolumeX } from 'lucide-react';
+import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSquare, Sparkles, Zap, Volume2 } from 'lucide-react';
 
 const AVATAR_IMAGE_URL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'%3E%3Crect fill='%23334155' width='400' height='500'/%3E%3Ctext x='200' y='250' text-anchor='middle' fill='%2306b6d4' font-size='16' font-family='Arial'%3ETu Avatar Aquí%3C/text%3E%3C/svg%3E";
 
@@ -10,8 +10,8 @@ const CarDevPortfolio = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [playingMessageIndex, setPlayingMessageIndex] = useState(null);
+  const [playingVoiceMode, setPlayingVoiceMode] = useState(null); // 'browser' o 'premium'
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
-  const [voiceMode, setVoiceMode] = useState('browser'); // 'browser' o 'premium'
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const audioRef = useRef(null);
@@ -99,18 +99,38 @@ const CarDevPortfolio = () => {
     }
   };
 
-  const speak = async (text, messageIndex) => {
+  const speak = async (text, messageIndex, voiceMode) => {
     try {
-      // Si ya está reproduciendo este mensaje, pausar
-      if (playingMessageIndex === messageIndex && audioRef.current) {
-        audioRef.current.pause();
+      // Si ya está reproduciendo ESTE mensaje con ESTE modo, pausar
+      if (playingMessageIndex === messageIndex && playingVoiceMode === voiceMode) {
+        // Detener todo
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current = null;
+        }
         if (window.speechSynthesis) {
           window.speechSynthesis.cancel();
         }
         setIsSpeaking(false);
         setPlayingMessageIndex(null);
+        setPlayingVoiceMode(null);
         setIsGeneratingAudio(false);
+        
+        // CRÍTICO: Reiniciar reconocimiento de voz si estaba activo
+        if (isListening && recognitionRef.current) {
+          try {
+            recognitionRef.current.start();
+          } catch (e) {
+            // Ya está corriendo
+          }
+        }
         return;
+      }
+
+      // CRÍTICO: Detener grabación de voz mientras habla la IA
+      if (isListening && recognitionRef.current) {
+        recognitionRef.current.stop();
+        setIsListening(false);
       }
 
       // Si hay otro audio reproduciéndose, detenerlo
@@ -123,6 +143,7 @@ const CarDevPortfolio = () => {
       }
 
       setPlayingMessageIndex(messageIndex);
+      setPlayingVoiceMode(voiceMode);
 
       // MODO 1: Voz del navegador (rápida)
       if (voiceMode === 'browser') {
@@ -139,12 +160,10 @@ const CarDevPortfolio = () => {
           'Microsoft Laura'
         ];
         
-        // Intentar encontrar una voz preferida
         utterance.voice = voices.find(voice => 
           preferredVoices.some(pref => voice.name.includes(pref))
         );
         
-        // Si no encuentra ninguna, usar la primera en español
         if (!utterance.voice) {
           utterance.voice = voices.find(voice => voice.lang.startsWith('es'));
         }
@@ -160,21 +179,22 @@ const CarDevPortfolio = () => {
         utterance.onend = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
+          setPlayingVoiceMode(null);
         };
         
         utterance.onerror = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
+          setPlayingVoiceMode(null);
         };
         
         window.speechSynthesis.speak(utterance);
       } 
-      // MODO 2: Voz Premium ElevenLabs (tu voz clonada)
+      // MODO 2: Voz Premium ElevenLabs
       else if (voiceMode === 'premium') {
         setIsGeneratingAudio(true);
         setIsSpeaking(true);
 
-        // Llamar a tu API de ElevenLabs
         const response = await fetch('/api/tts', {
           method: 'POST',
           headers: {
@@ -190,7 +210,6 @@ const CarDevPortfolio = () => {
         const data = await response.json();
         setIsGeneratingAudio(false);
         
-        // Convertir Base64 a audio y reproducirlo
         const audioBlob = base64ToBlob(data.audio, 'audio/mpeg');
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
@@ -199,6 +218,7 @@ const CarDevPortfolio = () => {
         audio.onended = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
+          setPlayingVoiceMode(null);
           URL.revokeObjectURL(audioUrl);
           audioRef.current = null;
         };
@@ -206,6 +226,7 @@ const CarDevPortfolio = () => {
         audio.onerror = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
+          setPlayingVoiceMode(null);
           setIsGeneratingAudio(false);
           URL.revokeObjectURL(audioUrl);
           audioRef.current = null;
@@ -218,6 +239,7 @@ const CarDevPortfolio = () => {
       console.error('Error playing audio:', error);
       setIsSpeaking(false);
       setPlayingMessageIndex(null);
+      setPlayingVoiceMode(null);
       setIsGeneratingAudio(false);
     }
   };
@@ -641,62 +663,15 @@ Responde de forma conversacional y estratégica:`
               <p className="text-cyan-400 font-semibold text-lg mb-1">Carla IA</p>
               <p className="text-gray-400 text-sm">
                 {isLoading && '💭 Pensando...'}
-                {isSpeaking && !isGeneratingAudio && '🔊 Reproduciendo audio...'}
-                {isGeneratingAudio && '🎵 Generando mi voz clonada...'}
+                {isSpeaking && !isGeneratingAudio && '🔊 Reproduciendo...'}
+                {isGeneratingAudio && '🎵 Generando voz clonada...'}
                 {isListening && '🎤 Escuchando...'}
                 {!isLoading && !isSpeaking && !isListening && !isGeneratingAudio && '✨ Lista para conversar'}
               </p>
             </div>
-            
-            {/* Voice Mode Selector */}
-            <div className="w-full">
-              <p className="text-xs text-gray-400 text-center mb-3">Elige calidad de voz:</p>
-              <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-1 flex gap-1">
-                <button
-                  onClick={() => setVoiceMode('browser')}
-                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                    voiceMode === 'browser'
-                      ? 'bg-gradient-to-r from-cyan-500 to-teal-500 text-white'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-lg">⚡</span>
-                    <span className="text-xs">Rápida</span>
-                  </div>
-                </button>
-                <button
-                  onClick={() => setVoiceMode('premium')}
-                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                    voiceMode === 'premium'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-lg">🎙️</span>
-                    <span className="text-xs">Premium</span>
-                  </div>
-                </button>
-              </div>
-              
-              {/* Explicación del modo seleccionado */}
-              <div className="mt-3 text-center">
-                {voiceMode === 'browser' ? (
-                  <p className="text-xs text-gray-400">
-                    ⚡ Voz del navegador - Instantánea
-                  </p>
-                ) : (
-                  <p className="text-xs text-cyan-400">
-                    🎙️ Mi voz real clonada con IA
-                  </p>
-                )}
-              </div>
-            </div>
-            
-            <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 text-xs text-gray-400">
-              <p className="mb-2 text-cyan-400 font-semibold">💡 Personaliza tu avatar:</p>
-              <p>Ve al código y reemplaza AVATAR_IMAGE_URL con tu imagen holográfica personalizada.</p>
+            <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 text-xs text-gray-400 w-full">
+              <p className="mb-2 text-cyan-400 font-semibold text-center">💡 Tip de voz</p>
+              <p className="text-center">Cada respuesta tiene 2 opciones: <span className="text-white">⚡ Rápida</span> o <span className="text-cyan-400">🎙️ Premium</span></p>
             </div>
           </div>
 
@@ -733,33 +708,46 @@ Responde de forma conversacional y estratégica:`
                       <div className="flex-1 p-4">
                         {msg.content}
                       </div>
+                      
+                      {/* Botones de audio solo para mensajes de Carla */}
                       {msg.role === 'assistant' && (
-                        <button
-                          onClick={() => speak(msg.content, idx)}
-                          disabled={isGeneratingAudio && playingMessageIndex === idx}
-                          className={`mt-4 mr-3 p-2 rounded-lg transition flex-shrink-0 ${
-                            isGeneratingAudio && playingMessageIndex === idx
-                              ? 'bg-yellow-500/20 border border-yellow-500/50'
-                              : playingMessageIndex === idx
-                              ? 'bg-cyan-500 hover:bg-cyan-600 animate-pulse'
-                              : 'bg-white/10 hover:bg-white/20 border border-white/20'
-                          }`}
-                          title={
-                            isGeneratingAudio && playingMessageIndex === idx
-                              ? 'Generando audio...'
-                              : playingMessageIndex === idx 
-                              ? 'Pausar audio' 
-                              : 'Escuchar respuesta'
-                          }
-                        >
-                          {isGeneratingAudio && playingMessageIndex === idx ? (
-                            <div className="w-5 h-5 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
-                          ) : playingMessageIndex === idx ? (
-                            <VolumeX className="w-5 h-5 text-white" />
-                          ) : (
-                            <Volume2 className="w-5 h-5 text-cyan-400" />
-                          )}
-                        </button>
+                        <div className="flex flex-col gap-2 mt-4 mr-3">
+                          {/* Botón Voz Rápida */}
+                          <button
+                            onClick={() => speak(msg.content, idx, 'browser')}
+                            disabled={isGeneratingAudio && playingMessageIndex === idx}
+                            className={`p-2 rounded-lg transition flex items-center gap-2 text-xs font-medium ${
+                              playingMessageIndex === idx && playingVoiceMode === 'browser'
+                                ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/50'
+                                : 'bg-white/10 hover:bg-white/20 border border-white/20 text-gray-300 hover:text-white'
+                            }`}
+                            title="Voz rápida (navegador)"
+                          >
+                            <Volume2 className="w-4 h-4" />
+                            <span>⚡</span>
+                          </button>
+                          
+                          {/* Botón Voz Premium */}
+                          <button
+                            onClick={() => speak(msg.content, idx, 'premium')}
+                            disabled={isGeneratingAudio && playingMessageIndex === idx}
+                            className={`p-2 rounded-lg transition flex items-center gap-2 text-xs font-medium ${
+                              isGeneratingAudio && playingMessageIndex === idx && playingVoiceMode === 'premium'
+                                ? 'bg-yellow-500/30 border border-yellow-500/50 text-yellow-300'
+                                : playingMessageIndex === idx && playingVoiceMode === 'premium'
+                                ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/50'
+                                : 'bg-white/10 hover:bg-white/20 border border-white/20 text-gray-300 hover:text-cyan-400'
+                            }`}
+                            title="Voz premium (mi voz clonada con IA)"
+                          >
+                            {isGeneratingAudio && playingMessageIndex === idx && playingVoiceMode === 'premium' ? (
+                              <div className="w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <Volume2 className="w-4 h-4" />
+                            )}
+                            <span>🎙️</span>
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -854,17 +842,17 @@ Responde de forma conversacional y estratégica:`
               </div>
               {!isListening && !isSpeaking && !isGeneratingAudio && (
                 <p className="text-xs text-gray-400 mt-2 text-center">
-                  💡 Usa el micrófono para grabar • Haz clic en <Volume2 className="w-3 h-3 inline" /> para escuchar • {voiceMode === 'premium' ? '🎙️ Voz premium' : '⚡ Voz rápida'}
+                  💡 Cada respuesta tiene dos opciones: <span className="text-white">⚡ Rápida</span> (instantánea) o <span className="text-cyan-400">🎙️ Premium</span> (mi voz clonada IA)
                 </p>
               )}
               {isGeneratingAudio && (
                 <p className="text-xs text-yellow-400 mt-2 text-center animate-pulse">
-                  🎵 Generando mi voz clonada con IA... Vale la espera
+                  🎵 Generando mi voz clonada con IA... (vale la espera)
                 </p>
               )}
               {isSpeaking && !isGeneratingAudio && (
-                <p className="text-xs text-cyan-400 mt-2 text-center animate-pulse">
-                  🔊 Reproduciendo audio de Carla...
+                <p className="text-xs text-cyan-400 mt-2 text-center">
+                  🔊 Reproduciendo • Haz clic de nuevo para pausar
                 </p>
               )}
             </div>
