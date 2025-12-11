@@ -324,22 +324,47 @@ Responde de forma conversacional y estratégica:`
   const HolographicAvatar = ({ size = 'large', isThinking = false, isTalking = false }) => {
     const dimension = size === 'large' ? 'w-72 h-72' : 'w-32 h-32';
     const videoRef = useRef(null);
-    const [hasPlayed, setHasPlayed] = useState(false);
-    const [showButton, setShowButton] = useState(true);
+    const [videoState, setVideoState] = useState('initial'); // 'initial', 'playing', 'paused', 'ended'
     
-    // ✅ Función para reproducir video cuando usuario hace click
-    const handlePlayVideo = () => {
-      if (videoRef.current) {
+    // ✅ Control del video con botón
+    const handleVideoControl = () => {
+      if (!videoRef.current) return;
+      
+      if (videoState === 'initial' || videoState === 'ended') {
+        // Reproducir desde el inicio
+        videoRef.current.currentTime = 0;
         videoRef.current.play().catch(err => console.log('Video play error:', err));
-        setShowButton(false); // Ocultar botón después de click
+        setVideoState('playing');
         
-        // Cuando el video termine, marcarlo como reproducido
+        // Detectar cuando termina
         videoRef.current.onended = () => {
-          setHasPlayed(true);
-          videoRef.current.pause();
+          setVideoState('ended');
         };
+      } else if (videoState === 'playing') {
+        // Pausar
+        videoRef.current.pause();
+        setVideoState('paused');
+      } else if (videoState === 'paused') {
+        // Reanudar
+        videoRef.current.play().catch(err => console.log('Video play error:', err));
+        setVideoState('playing');
       }
     };
+    
+    // Determinar texto e icono del botón
+    const getButtonContent = () => {
+      if (videoState === 'initial') {
+        return { text: 'Ver mi presentación', icon: 'play' };
+      } else if (videoState === 'playing') {
+        return { text: 'Pausar video', icon: 'pause' };
+      } else if (videoState === 'paused') {
+        return { text: 'Continuar video', icon: 'play' };
+      } else if (videoState === 'ended') {
+        return { text: 'Ver de nuevo', icon: 'replay' };
+      }
+    };
+    
+    const buttonContent = getButtonContent();
     
     return (
       <div className={`relative ${dimension}`}>
@@ -483,18 +508,30 @@ Responde de forma conversacional y estratégica:`
           )}
         </div>
         
-        {/* ✅ Botón para reproducir video - desaparece después de click */}
-        {showButton && !hasPlayed && (
-          <button
-            onClick={handlePlayVideo}
-            className="mt-6 bg-gradient-to-r from-cyan-500 to-purple-500 px-6 py-3 rounded-lg font-semibold text-sm hover:shadow-lg hover:shadow-cyan-500/50 transition flex items-center gap-2 mx-auto animate-pulse"
-          >
+        {/* ✅ Botón de control de video - siempre visible */}
+        <button
+          onClick={handleVideoControl}
+          className={`mt-8 bg-gradient-to-r from-cyan-500 to-purple-500 px-6 py-3 rounded-lg font-semibold text-sm hover:shadow-lg hover:shadow-cyan-500/50 transition flex items-center gap-2 mx-auto ${
+            videoState === 'initial' ? 'animate-pulse' : ''
+          }`}
+        >
+          {buttonContent.icon === 'play' && (
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
             </svg>
-            Ver mi presentación
-          </button>
-        )}
+          )}
+          {buttonContent.icon === 'pause' && (
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zM12.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z" />
+            </svg>
+          )}
+          {buttonContent.icon === 'replay' && (
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clipRule="evenodd" />
+            </svg>
+          )}
+          {buttonContent.text}
+        </button>
       </div>
     );
   };
