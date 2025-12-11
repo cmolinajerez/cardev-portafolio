@@ -22,6 +22,32 @@ const PortafolioCarDev = () => {
   const avatarVideoRef = useRef(null);
   const [videoState, setVideoState] = useState('initial'); // 'initial' | 'playing' | 'paused' | 'ended'
 
+  // ✅ Cargar el video al montar el componente para que se vea el primer frame
+  useEffect(() => {
+    if (avatarVideoRef.current) {
+      const video = avatarVideoRef.current;
+      
+      // Esperar a que los metadatos estén cargados
+      const handleLoadedMetadata = () => {
+        video.currentTime = 0;
+        video.pause();
+      };
+      
+      if (video.readyState >= 1) {
+        // Ya está listo
+        video.currentTime = 0;
+        video.pause();
+      } else {
+        // Esperar a que cargue
+        video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      }
+      
+      return () => {
+        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      };
+    }
+  }, []);
+
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -302,6 +328,7 @@ Responde de forma conversacional y estratégica:`
             <video 
               ref={videoRef}
               playsInline
+              preload="metadata"
               className="w-full h-full object-cover"
               style={{ filter: 'brightness(1.2) contrast(1.1)', mixBlendMode: 'screen' }}
             >
@@ -728,6 +755,7 @@ Responde de forma conversacional y estratégica:`
 };
 
 export default PortafolioCarDev;
+
 
 
 
