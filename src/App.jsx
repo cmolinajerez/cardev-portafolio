@@ -329,6 +329,7 @@ Responde de forma conversacional y estratégica:`
     useEffect(() => {
       if (videoRef.current) {
         if (isTalking) {
+          videoRef.current.playbackRate = 1.8; // ⚡ Acelerar video 1.8x para sincronizar con audio
           videoRef.current.play().catch(err => console.log('Video play error:', err));
         } else {
           videoRef.current.pause();
@@ -962,4 +963,5 @@ Responde de forma conversacional y estratégica:`
 };
 
 export default PortafolioCarDev;
+
 
