@@ -324,19 +324,20 @@ Responde de forma conversacional y estratégica:`
   const HolographicAvatar = ({ size = 'large', isThinking = false, isTalking = false }) => {
     const dimension = size === 'large' ? 'w-72 h-72' : 'w-32 h-32';
     const videoRef = useRef(null);
+    const [hasPlayed, setHasPlayed] = useState(false);
     
-    // ✅ Control del video: reproduce SOLO cuando isTalking es true
+    // ✅ Video se reproduce UNA vez cuando el componente se monta
     useEffect(() => {
-      if (videoRef.current) {
-        if (isTalking) {
-          videoRef.current.playbackRate = 1.8; // ⚡ Acelerar video 1.8x para sincronizar con audio
-          videoRef.current.play().catch(err => console.log('Video play error:', err));
-        } else {
+      if (videoRef.current && !hasPlayed) {
+        videoRef.current.play().catch(err => console.log('Video play error:', err));
+        
+        // Cuando el video termine, pausarlo
+        videoRef.current.onended = () => {
+          setHasPlayed(true);
           videoRef.current.pause();
-          videoRef.current.currentTime = 0; // Vuelve al inicio
-        }
+        };
       }
-    }, [isTalking]);
+    }, [hasPlayed]);
     
     return (
       <div className={`relative ${dimension}`}>
@@ -344,11 +345,10 @@ Responde de forma conversacional y estratégica:`
         <div className={`absolute inset-0 bg-cyan-400 rounded-full blur-2xl opacity-20 ${isTalking ? 'animate-pulse' : ''}`} style={{animationDelay: '0.3s'}}></div>
         
         <div className="relative w-full h-full">
-          {/* ✅ Video controlado: NO autoPlay, se activa con isTalking */}
+          {/* ✅ Video se reproduce UNA vez al cargar, luego se detiene */}
           <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-cyan-400/50">
             <video 
               ref={videoRef}
-              loop 
               muted 
               playsInline
               className="w-full h-full object-cover"
@@ -963,5 +963,6 @@ Responde de forma conversacional y estratégica:`
 };
 
 export default PortafolioCarDev;
+
 
 
