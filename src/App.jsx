@@ -13,12 +13,16 @@ const PortafolioCarDev = () => {
   const [playingVoiceMode, setPlayingVoiceMode] = useState(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
   const recognitionRef = useRef(null);
   const audioRef = useRef(null);
-  const shouldStopRecognition = useRef(false); // Flag para controlar si realmente queremos detener
+  const shouldStopRecognition = useRef(false);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Scroll solo dentro del contenedor del chat, NO toda la página
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -646,7 +650,7 @@ Responde de forma conversacional y estratégica:`
           </div>
 
           <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl relative">
-            <div className="h-[500px] overflow-y-auto p-6 space-y-4">
+            <div ref={chatContainerRef} className="h-[500px] overflow-y-auto p-6 space-y-4">
               {messages.length === 0 && (
                 <div className="text-center text-gray-400 mt-32">
                   <Sparkles className="w-12 h-12 mx-auto mb-4 text-cyan-400" />
@@ -940,6 +944,7 @@ Responde de forma conversacional y estratégica:`
 };
 
 export default PortafolioCarDev;
+
 
 
 
