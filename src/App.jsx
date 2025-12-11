@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSquare, Sparkles, Zap, Volume2 } from 'lucide-react';
 
-const AVATAR_IMAGE_URL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'%3E%3Crect fill='%23334155' width='400' height='500'/%3E%3Ctext x='200' y='250' text-anchor='middle' fill='%2306b6d4' font-size='16' font-family='Arial'%3ETu Avatar Aquí%3C/text%3E%3C/svg%3E";
+const AVATAR_VIDEO_URL = "./avatar-carla.mp4"; // Video holográfico
 
 const PortafolioCarDev = () => {
   const [messages, setMessages] = useState([]);
@@ -329,16 +329,20 @@ Responde de forma conversacional y estratégica:`
         <div className={`absolute inset-0 bg-cyan-400 rounded-full blur-2xl opacity-20 ${isTalking ? 'animate-pulse' : ''}`} style={{animationDelay: '0.3s'}}></div>
         
         <div className="relative w-full h-full">
-          <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-cyan-400/50">
-            <img 
-              src={AVATAR_IMAGE_URL}
-              alt="Carla AI Avatar"
-              className="w-full h-full object-cover"
+          <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-cyan-400/50 avatar-breathing">
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              className="w-full h-full object-cover avatar-glitch-occasional"
               style={{
                 filter: 'brightness(1.2) contrast(1.1)',
                 mixBlendMode: 'screen'
               }}
-            />
+            >
+              <source src={AVATAR_VIDEO_URL} type="video/mp4" />
+            </video>
             
             <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/20 via-transparent to-cyan-500/20"></div>
             
@@ -354,10 +358,28 @@ Responde de forma conversacional y estratégica:`
             ></div>
             
             <div className="absolute inset-0 overflow-hidden">
+              {/* Línea de escaneo horizontal */}
               <div 
                 className="absolute w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60"
                 style={{
                   animation: 'scan 3s linear infinite'
+                }}
+              ></div>
+              
+              {/* Línea de escaneo vertical */}
+              <div 
+                className="absolute h-full w-1 bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-40"
+                style={{
+                  animation: 'scan-vertical 4s linear infinite'
+                }}
+              ></div>
+              
+              {/* Efecto shimmer ocasional */}
+              <div 
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-300/30 to-transparent"
+                style={{
+                  animation: 'shimmer 6s ease-in-out infinite',
+                  animationDelay: '1s'
                 }}
               ></div>
             </div>
@@ -890,8 +912,7 @@ Responde de forma conversacional y estratégica:`
       </section>
 
       <footer className="relative z-10 px-6 py-8 border-t border-white/10 text-center text-gray-400">
-        <p>© 2024 Carla Pamela Molina Jerez • CarDev • Construido con IA conversacional</p>
-        <p className="text-xs mt-2">💡 Personaliza el avatar holográfico editando AVATAR_IMAGE_URL en el código</p>
+        <p>© 2024 Carla Pamela Molina Jerez • CarDev • Portafolio conversacional con IA</p>
       </footer>
 
       <style jsx>{`
@@ -916,12 +937,60 @@ Responde de forma conversacional y estratégica:`
           100% { top: 110%; }
         }
         
+        @keyframes scan-vertical {
+          0% { left: -10%; }
+          100% { left: 110%; }
+        }
+        
         @keyframes glitch {
           0%, 100% { transform: translate(0); }
           20% { transform: translate(-2px, 2px); }
           40% { transform: translate(-2px, -2px); }
           60% { transform: translate(2px, 2px); }
           80% { transform: translate(2px, -2px); }
+        }
+        
+        @keyframes glitch-occasional {
+          0%, 90%, 100% { 
+            transform: translate(0);
+            filter: hue-rotate(0deg);
+          }
+          91% { 
+            transform: translate(-3px, 3px);
+            filter: hue-rotate(20deg);
+          }
+          92% { 
+            transform: translate(3px, -3px);
+            filter: hue-rotate(-20deg);
+          }
+          93% { 
+            transform: translate(-2px, -2px);
+            filter: hue-rotate(10deg);
+          }
+          94% { 
+            transform: translate(0);
+            filter: hue-rotate(0deg);
+          }
+        }
+        
+        @keyframes breathing {
+          0%, 100% { 
+            transform: scale(1);
+            filter: brightness(1);
+          }
+          50% { 
+            transform: scale(1.02);
+            filter: brightness(1.1);
+          }
+        }
+        
+        @keyframes shimmer {
+          0% { 
+            transform: translateX(-100%) rotate(45deg);
+          }
+          100% { 
+            transform: translateX(200%) rotate(45deg);
+          }
         }
         
         @keyframes animate-pulse-slow {
@@ -937,6 +1006,14 @@ Responde de forma conversacional y estratégica:`
         
         .animate-pulse-slow {
           animation: animate-pulse-slow 2s ease-in-out infinite;
+        }
+        
+        .avatar-breathing {
+          animation: breathing 4s ease-in-out infinite;
+        }
+        
+        .avatar-glitch-occasional {
+          animation: glitch-occasional 8s ease-in-out infinite;
         }
       `}</style>
     </div>
