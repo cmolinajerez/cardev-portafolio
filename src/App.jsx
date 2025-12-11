@@ -323,6 +323,19 @@ Responde de forma conversacional y estratégica:`
 
   const HolographicAvatar = ({ size = 'large', isThinking = false, isTalking = false }) => {
     const dimension = size === 'large' ? 'w-72 h-72' : 'w-32 h-32';
+    const videoRef = useRef(null);
+    
+    // ✅ Control del video: reproduce SOLO cuando isTalking es true
+    useEffect(() => {
+      if (videoRef.current) {
+        if (isTalking) {
+          videoRef.current.play().catch(err => console.log('Video play error:', err));
+        } else {
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0; // Vuelve al inicio
+        }
+      }
+    }, [isTalking]);
     
     return (
       <div className={`relative ${dimension}`}>
@@ -330,10 +343,10 @@ Responde de forma conversacional y estratégica:`
         <div className={`absolute inset-0 bg-cyan-400 rounded-full blur-2xl opacity-20 ${isTalking ? 'animate-pulse' : ''}`} style={{animationDelay: '0.3s'}}></div>
         
         <div className="relative w-full h-full">
-          {/* ✅ ÚNICO CAMBIO 2: Video en lugar de imagen */}
+          {/* ✅ Video controlado: NO autoPlay, se activa con isTalking */}
           <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-cyan-400/50">
             <video 
-              autoPlay 
+              ref={videoRef}
               loop 
               muted 
               playsInline
@@ -949,3 +962,4 @@ Responde de forma conversacional y estratégica:`
 };
 
 export default PortafolioCarDev;
+
