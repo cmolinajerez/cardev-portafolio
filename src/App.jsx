@@ -949,6 +949,3 @@ Responde de forma conversacional y estratégica:`
 };
 
 export default PortafolioCarDev;
-
-
-
