@@ -724,7 +724,7 @@ Responde de forma conversacional y estratégica:`
           </div>
 
           <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl relative">
-            <div ref={chatContainerRef} className="h-[100px] md:h-[500px] overflow-y-auto p-6 space-y-4">
+            <div ref={chatContainerRef} className="h-[50vh] md:h-[500px] overflow-y-auto p-6 space-y-4">
               {messages.length === 0 && (
                 <div className="text-center text-gray-400 mt-32">
                   <Sparkles className="w-12 h-12 mx-auto mb-4 text-cyan-400" />
