@@ -707,7 +707,7 @@ Responde de forma conversacional y estratégica:`
           <div className="flex flex-col items-center gap-6">
             <HolographicAvatar size="large" isThinking={isLoading} isTalking={isSpeaking} />
             <div className="text-center">
-              <p className="text-cyan-400 font-semibold text-lg mb-1">Carla</p>
+              <p className="text-cyan-400 font-semibold text-lg mb-1"></p>
               {(isLoading || isSpeaking || isGeneratingAudio || isListening) && (
                 <p className="text-gray-400 text-sm">
                   {isLoading && '💭 Pensando...'}
