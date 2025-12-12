@@ -883,7 +883,7 @@ Responde de forma conversacional y estratégica:`
                 <button
                   onClick={sendMessage}
                   disabled={!input.trim() || isLoading}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-500 p-3 rounded-xl hover:shadow-lg hover:shadow-cyan-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-gradient-to-r from-cyan-500 to-purple-500 p-2 md:p-3 rounded-xl hover:shadow-lg hover:shadow-cyan-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-5 h-5" />
                 </button>
