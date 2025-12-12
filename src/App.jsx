@@ -655,6 +655,8 @@ Responde de forma conversacional y estratégica:`
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">LLMs</span>
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Bases de datos</span>
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Almacenamiento vectorial</span>
+              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">OpenAI</span>
+              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Anthropic</span>
             </div>
           </div>
 
@@ -669,6 +671,7 @@ Responde de forma conversacional y estratégica:`
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">Aplicaciones Full-Stack</span>
               <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">IA Integrada</span>
+              <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">MCP</span>
               <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">Arquitectura Escalable</span>
             </div>
           </div>
@@ -684,6 +687,7 @@ Responde de forma conversacional y estratégica:`
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Desarrollo Web</span>
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Análisis de usuarios</span>
+              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Integración de soluciones</span>
             </div>
           </div>
         </div>
