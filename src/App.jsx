@@ -651,10 +651,10 @@ Responde de forma conversacional y estratégica:`
               Desarrollo de agentes conversacionales inteligentes para empresas. Especialización en RAG, LLMs y automatización de procesos mediante IA.
             </p>
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Python</span>
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">RAG</span>
-              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">PostgreSQL</span>
-              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">OpenAI</span>
+              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Integración LLMs</span>
+              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Bases de datos</span>
+              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Almacenamiento vectorial</span>
             </div>
           </div>
 
@@ -667,9 +667,9 @@ Responde de forma conversacional y estratégica:`
               Desarrollo de aplicaciones full-stack innovadoras. Soluciones completas desde arquitectura hasta producción con enfoque en inteligencia artificial integrada.
             </p>
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">LLMs</span>
-              <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">RAG</span>
-              <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">Mentor-IA</span>
+              <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">Aplicaciones Full-Stack</span>
+              <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">IA Integrada</span>
+              <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">Arquitectura Escalable</span>
             </div>
           </div>
 
@@ -682,8 +682,8 @@ Responde de forma conversacional y estratégica:`
               Diseño y desarrollo de sitios web modernos con análisis de usuario y optimización de conversión. Experiencia en soluciones web para emprendedores.
             </p>
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">React</span>
-              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Web Design</span>
+              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Desarrollo Web</span>
+              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Análisis de usuarios</span>
             </div>
           </div>
         </div>
