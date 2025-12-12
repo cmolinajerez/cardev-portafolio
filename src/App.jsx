@@ -367,151 +367,153 @@ Responde de forma conversacional y estratégica:`
     const buttonContent = getButtonContent();
     
     return (
-      <div className={`relative ${dimension}`}>
-        <div className={`absolute inset-0 bg-gradient-to-r from-cyan-400 via-teal-400 to-cyan-500 rounded-full blur-3xl opacity-40 ${isTalking ? 'animate-pulse' : ''}`}></div>
-        <div className={`absolute inset-0 bg-cyan-400 rounded-full blur-2xl opacity-20 ${isTalking ? 'animate-pulse' : ''}`} style={{animationDelay: '0.3s'}}></div>
-        
-        <div className="relative w-full h-full">
-          {/* ✅ Video se reproduce UNA vez al cargar, luego se detiene */}
-          <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-cyan-400/50">
-            <video 
-              ref={videoRef}
-              playsInline
-              className="w-full h-full object-cover"
-              style={{
-                filter: 'brightness(1.2) contrast(1.1)',
-                mixBlendMode: 'screen'
-              }}
-            >
-              <source src={AVATAR_VIDEO_URL} type="video/mp4" />
-            </video>
-            
-            <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/20 via-transparent to-cyan-500/20"></div>
-            
-            <div 
-              className="absolute inset-0 opacity-30"
-              style={{
-                backgroundImage: `
-                  linear-gradient(0deg, transparent 24%, rgba(6, 182, 212, 0.3) 25%, rgba(6, 182, 212, 0.3) 26%, transparent 27%, transparent 74%, rgba(6, 182, 212, 0.3) 75%, rgba(6, 182, 212, 0.3) 76%, transparent 77%, transparent),
-                  linear-gradient(90deg, transparent 24%, rgba(6, 182, 212, 0.3) 25%, rgba(6, 182, 212, 0.3) 26%, transparent 27%, transparent 74%, rgba(6, 182, 212, 0.3) 75%, rgba(6, 182, 212, 0.3) 76%, transparent 77%, transparent)
-                `,
-                backgroundSize: '20px 20px'
-              }}
-            ></div>
-            
-            <div className="absolute inset-0 overflow-hidden">
-              <div 
-                className="absolute w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60"
+      <>
+        <div className={`relative ${dimension}`}>
+          <div className={`absolute inset-0 bg-gradient-to-r from-cyan-400 via-teal-400 to-cyan-500 rounded-full blur-3xl opacity-40 ${isTalking ? 'animate-pulse' : ''}`}></div>
+          <div className={`absolute inset-0 bg-cyan-400 rounded-full blur-2xl opacity-20 ${isTalking ? 'animate-pulse' : ''}`} style={{animationDelay: '0.3s'}}></div>
+          
+          <div className="relative w-full h-full">
+            {/* ✅ Video se reproduce UNA vez al cargar, luego se detiene */}
+            <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-cyan-400/50">
+              <video 
+                ref={videoRef}
+                playsInline
+                className="w-full h-full object-cover"
                 style={{
-                  animation: 'scan 3s linear infinite'
+                  filter: 'brightness(1.2) contrast(1.1)',
+                  mixBlendMode: 'screen'
+                }}
+              >
+                <source src={AVATAR_VIDEO_URL} type="video/mp4" />
+              </video>
+              
+              <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/20 via-transparent to-cyan-500/20"></div>
+              
+              <div 
+                className="absolute inset-0 opacity-30"
+                style={{
+                  backgroundImage: `
+                    linear-gradient(0deg, transparent 24%, rgba(6, 182, 212, 0.3) 25%, rgba(6, 182, 212, 0.3) 26%, transparent 27%, transparent 74%, rgba(6, 182, 212, 0.3) 75%, rgba(6, 182, 212, 0.3) 76%, transparent 77%, transparent),
+                    linear-gradient(90deg, transparent 24%, rgba(6, 182, 212, 0.3) 25%, rgba(6, 182, 212, 0.3) 26%, transparent 27%, transparent 74%, rgba(6, 182, 212, 0.3) 75%, rgba(6, 182, 212, 0.3) 76%, transparent 77%, transparent)
+                  `,
+                  backgroundSize: '20px 20px'
                 }}
               ></div>
+              
+              <div className="absolute inset-0 overflow-hidden">
+                <div 
+                  className="absolute w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60"
+                  style={{
+                    animation: 'scan 3s linear infinite'
+                  }}
+                ></div>
+              </div>
+              
+              {isTalking && (
+                <div 
+                  className="absolute inset-0 bg-cyan-400/10"
+                  style={{
+                    animation: 'glitch 0.3s infinite'
+                  }}
+                ></div>
+              )}
             </div>
+            
+            <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 200 200">
+              {[...Array(8)].map((_, i) => {
+                const angle = (i * 360) / 8;
+                const radius = 95;
+                const x = 100 + radius * Math.cos((angle * Math.PI) / 180);
+                const y = 100 + radius * Math.sin((angle * Math.PI) / 180);
+                return (
+                  <circle key={i} cx={x} cy={y} r="2" fill="#06b6d4" opacity="0.6">
+                    <animate
+                      attributeName="r"
+                      values="1;3;1"
+                      dur="2s"
+                      begin={`${i * 0.25}s`}
+                      repeatCount="indefinite"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      values="0.3;1;0.3"
+                      dur="2s"
+                      begin={`${i * 0.25}s`}
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                );
+              })}
+              
+              <circle cx="100" cy="100" r="90" fill="none" stroke="url(#gradient1)" strokeWidth="1" opacity="0.3">
+                <animateTransform
+                  attributeName="transform"
+                  type="rotate"
+                  from="0 100 100"
+                  to="360 100 100"
+                  dur="20s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+              
+              <circle cx="100" cy="100" r="105" fill="none" stroke="url(#gradient2)" strokeWidth="0.5" opacity="0.2">
+                <animateTransform
+                  attributeName="transform"
+                  type="rotate"
+                  from="360 100 100"
+                  to="0 100 100"
+                  dur="15s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+              
+              <defs>
+                <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#06b6d4" />
+                  <stop offset="100%" stopColor="#14b8a6" />
+                </linearGradient>
+                <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#14b8a6" />
+                  <stop offset="100%" stopColor="#06b6d4" />
+                </linearGradient>
+              </defs>
+            </svg>
+            
+            {isThinking && (
+              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 flex gap-2">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-2 bg-cyan-400 rounded-full"
+                    style={{
+                      animation: `bounce 0.6s ease-in-out ${i * 0.1}s infinite`
+                    }}
+                  ></div>
+                ))}
+              </div>
+            )}
             
             {isTalking && (
-              <div 
-                className="absolute inset-0 bg-cyan-400/10"
-                style={{
-                  animation: 'glitch 0.3s infinite'
-                }}
-              ></div>
+              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex gap-1">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-1 bg-cyan-400 rounded-full"
+                    style={{
+                      height: '16px',
+                      animation: `wave 0.6s ease-in-out ${i * 0.1}s infinite`
+                    }}
+                  ></div>
+                ))}
+              </div>
             )}
           </div>
-          
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 200 200">
-            {[...Array(8)].map((_, i) => {
-              const angle = (i * 360) / 8;
-              const radius = 95;
-              const x = 100 + radius * Math.cos((angle * Math.PI) / 180);
-              const y = 100 + radius * Math.sin((angle * Math.PI) / 180);
-              return (
-                <circle key={i} cx={x} cy={y} r="2" fill="#06b6d4" opacity="0.6">
-                  <animate
-                    attributeName="r"
-                    values="1;3;1"
-                    dur="2s"
-                    begin={`${i * 0.25}s`}
-                    repeatCount="indefinite"
-                  />
-                  <animate
-                    attributeName="opacity"
-                    values="0.3;1;0.3"
-                    dur="2s"
-                    begin={`${i * 0.25}s`}
-                    repeatCount="indefinite"
-                  />
-                </circle>
-              );
-            })}
-            
-            <circle cx="100" cy="100" r="90" fill="none" stroke="url(#gradient1)" strokeWidth="1" opacity="0.3">
-              <animateTransform
-                attributeName="transform"
-                type="rotate"
-                from="0 100 100"
-                to="360 100 100"
-                dur="20s"
-                repeatCount="indefinite"
-              />
-            </circle>
-            
-            <circle cx="100" cy="100" r="105" fill="none" stroke="url(#gradient2)" strokeWidth="0.5" opacity="0.2">
-              <animateTransform
-                attributeName="transform"
-                type="rotate"
-                from="360 100 100"
-                to="0 100 100"
-                dur="15s"
-                repeatCount="indefinite"
-              />
-            </circle>
-            
-            <defs>
-              <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#06b6d4" />
-                <stop offset="100%" stopColor="#14b8a6" />
-              </linearGradient>
-              <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#14b8a6" />
-                <stop offset="100%" stopColor="#06b6d4" />
-              </linearGradient>
-            </defs>
-          </svg>
-          
-          {isThinking && (
-            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 flex gap-2">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="w-2 h-2 bg-cyan-400 rounded-full"
-                  style={{
-                    animation: `bounce 0.6s ease-in-out ${i * 0.1}s infinite`
-                  }}
-                ></div>
-              ))}
-            </div>
-          )}
-          
-          {isTalking && (
-            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex gap-1">
-              {[...Array(4)].map((_, i) => (
-                <div
-                  key={i}
-                  className="w-1 bg-cyan-400 rounded-full"
-                  style={{
-                    height: '16px',
-                    animation: `wave 0.6s ease-in-out ${i * 0.1}s infinite`
-                  }}
-                ></div>
-              ))}
-            </div>
-          )}
         </div>
         
-        {/* ✅ Botón de control de video - siempre visible */}
+        {/* ✅ Botón de control de video - ahora fuera del avatar */}
         <button
           onClick={handleVideoControl}
-          className={`mt-8 bg-gradient-to-r from-cyan-500 to-purple-500 px-6 py-3 rounded-lg font-semibold text-sm hover:shadow-lg hover:shadow-cyan-500/50 transition flex items-center gap-2 mx-auto ${
+          className={`mt-4 bg-gradient-to-r from-cyan-500 to-purple-500 px-6 py-3 rounded-lg font-semibold text-sm hover:shadow-lg hover:shadow-cyan-500/50 transition flex items-center gap-2 mx-auto ${
             videoState === 'initial' ? 'animate-pulse' : ''
           }`}
         >
@@ -532,7 +534,7 @@ Responde de forma conversacional y estratégica:`
           )}
           {buttonContent.text}
         </button>
-      </div>
+      </>
     );
   };
 
@@ -706,13 +708,14 @@ Responde de forma conversacional y estratégica:`
             <HolographicAvatar size="large" isThinking={isLoading} isTalking={isSpeaking} />
             <div className="text-center">
               <p className="text-cyan-400 font-semibold text-lg mb-1">Carla</p>
-              <p className="text-gray-400 text-sm">
-                {isLoading && '💭 Pensando...'}
-                {isSpeaking && !isGeneratingAudio && '🔊 Reproduciendo...'}
-                {isGeneratingAudio && '🎵 Generando voz clonada...'}
-                {isListening && '🎤 Escuchando...'}
-                {!isLoading && !isSpeaking && !isListening && !isGeneratingAudio && '✨ Lista para conversar'}
-              </p>
+              {(isLoading || isSpeaking || isGeneratingAudio || isListening) && (
+                <p className="text-gray-400 text-sm">
+                  {isLoading && '💭 Pensando...'}
+                  {isSpeaking && !isGeneratingAudio && '🔊 Reproduciendo...'}
+                  {isGeneratingAudio && '🎵 Generando voz clonada...'}
+                  {isListening && '🎤 Escuchando...'}
+                </p>
+              )}
             </div>
             <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 text-xs text-gray-400 w-full">
               <p className="mb-2 text-cyan-400 font-semibold text-center">💡 Tip de voz</p>
