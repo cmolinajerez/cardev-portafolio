@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSquare, Sparkles, Zap, Volume2 } from 'lucide-react';
+import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSquare, Sparkles, Zap, Volume2, Workflow } from 'lucide-react';
 
 // ✅ ÚNICO CAMBIO 1: Video en lugar de imagen SVG
 const AVATAR_VIDEO_URL = "./avatar-carla.mp4";
@@ -619,7 +619,7 @@ Responde de forma conversacional y estratégica:`
             </p>
           </div>
           <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-500/50 transition">
-            <Users className="w-12 h-12 text-purple-400 mb-4" />
+            <Workflow className="w-12 h-12 text-purple-400 mb-4" />
             <h3 className="text-xl font-bold mb-3">Coordinación de Alta Complejidad</h3>
             <p className="text-gray-300">
               Articulación prolija de sistemas multi-componente y coordinación de equipos interdisciplinarios. Integro backend, frontend, bases de datos y APIs en soluciones coherentes
