@@ -638,7 +638,7 @@ Responde de forma conversacional y estratégica:`
       <section id="projects" className="relative z-10 px-6 py-20 max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold mb-12 text-center">
           <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-            Proyectos Destacados
+            Empresas & Servicios
           </span>
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
