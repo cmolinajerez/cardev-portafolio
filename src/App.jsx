@@ -622,7 +622,7 @@ Responde de forma conversacional y estratégica:`
             <Users className="w-12 h-12 text-purple-400 mb-4" />
             <h3 className="text-xl font-bold mb-3">Coordinación de Alta Complejidad</h3>
             <p className="text-gray-300">
-              Experiencia y prolijidad articulando sistemas multi-componente y multi-stakeholder. Orquesto backend, frontend, bases de datos, APIs y equipos interdisciplinarios.
+              Articulación prolija de sistemas multi-componente y coordinación de equipos interdisciplinarios. Integro backend, frontend, bases de datos y APIs en soluciones coherentes
             </p>
           </div>
           <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition">
