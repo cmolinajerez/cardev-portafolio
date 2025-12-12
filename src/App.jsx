@@ -646,9 +646,9 @@ Responde de forma conversacional y estratégica:`
             <div className="bg-cyan-500/20 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
               <Brain className="w-8 h-8 text-cyan-400" />
             </div>
-            <h3 className="text-2xl font-bold mb-3">Agente InterSystems</h3>
+            <h3 className="text-2xl font-bold mb-3">Mentor-IA</h3>
             <p className="text-gray-300 mb-6">
-              Sistema conversacional con RAG para optimizar la inducción técnica en TrakCare. Arquitectura completa: FastAPI, Streamlit, PostgreSQL, Vector Store OpenAI. Reduce curva de aprendizaje de 4-6 años.
+              Desarrollo de agentes conversacionales inteligentes para empresas. Especialización en RAG, LLMs y automatización de procesos mediante IA.
             </p>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Python</span>
@@ -662,9 +662,9 @@ Responde de forma conversacional y estratégica:`
             <div className="bg-purple-500/20 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
               <MessageSquare className="w-8 h-8 text-purple-400" />
             </div>
-            <h3 className="text-2xl font-bold mb-3">Agente RRHH RAG</h3>
+            <h3 className="text-2xl font-bold mb-3">CarDev</h3>
             <p className="text-gray-300 mb-6">
-              Demo funcional de automatización con RAG para consultas de recursos humanos. Responde preguntas sobre vacaciones, evaluaciones, beneficios y políticas empresariales con información contextualizada.
+              Desarrollo de aplicaciones full-stack innovadoras. Soluciones completas desde arquitectura hasta producción con enfoque en IA conversacional integrada.
             </p>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">LLMs</span>
@@ -677,9 +677,9 @@ Responde de forma conversacional y estratégica:`
             <div className="bg-cyan-500/20 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
               <Code className="w-8 h-8 text-cyan-400" />
             </div>
-            <h3 className="text-2xl font-bold mb-3">Electroconstrucción.cl</h3>
+            <h3 className="text-2xl font-bold mb-3">Desarrollo-Web</h3>
             <p className="text-gray-300 mb-6">
-              Desarrollo web completo para emprendimiento del sector construcción. Diseño moderno, responsive y optimizado para conversión de clientes.
+              Diseño y desarrollo de sitios web modernos con análisis de usuario y optimización de conversión. Experiencia en soluciones web para emprendedores.
             </p>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">React</span>
