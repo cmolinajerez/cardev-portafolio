@@ -734,9 +734,9 @@ Responde de forma conversacional y estratégica:`
                   </p>
                   <div className="mt-6 text-left max-w-md mx-auto space-y-2 text-xs">
                     <p className="text-cyan-400">💡 Ejemplos de preguntas:</p>
-                    <p>"¿Qué experiencia tienes con agentes conversacionales?"</p>
-                    <p>"¿Puedes ayudarme a implementar IA en mi empresa?"</p>
-                    <p>"Cuéntame sobre tu proyecto de InterSystems"</p>
+                    <p>"¿Cuáles son tus fortalezas técnicas y personales?"</p>
+                    <p>"¿Cuál ha sido tu proyecto más desafiante y cómo lo resolviste?"</p>
+                    <p>"¿Qué stack usas para agentes RAG en producción?"</p>
                   </div>
                 </div>
               )}
