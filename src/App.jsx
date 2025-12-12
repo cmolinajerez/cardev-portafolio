@@ -626,7 +626,7 @@ Responde de forma conversacional y estratégica:`
             </p>
           </div>
           <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition">
-            <Award className="w-12 h-12 text-cyan-400 mb-4" />
+            <MessageSquare className="w-12 h-12 text-cyan-400 mb-4" />
             <h3 className="text-xl font-bold mb-3">Comunicación Técnica Clara</h3>
             <p className="text-gray-300">
               Traduzco complejidad técnica a lenguaje comprensible. Explico arquitecturas, flujos y decisiones técnicas de forma clara para stakeholders, clientes y equipos interdisciplinarios.
