@@ -613,23 +613,23 @@ Responde de forma conversacional y estratégica:`
         <div className="grid md:grid-cols-3 gap-8">
           <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition">
             <Brain className="w-12 h-12 text-cyan-400 mb-4" />
-            <h3 className="text-xl font-bold mb-3">Expertise Técnico en IA</h3>
+            <h3 className="text-xl font-bold mb-3">Cerebro Analítico-Creativo</h3>
             <p className="text-gray-300">
-              Construcción end-to-end de agentes conversacionales con LLMs, RAG y MCP. Arquitecturas completas desde backend hasta deployment en la nube.
+              Combino pensamiento lógico riguroso con creatividad infinita. Soluciono problemas complejos con soluciones innovadoras que otros no ven, manteniendo siempre la viabilidad técnica.
             </p>
           </div>
           <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-500/50 transition">
             <Users className="w-12 h-12 text-purple-400 mb-4" />
-            <h3 className="text-xl font-bold mb-3">Liderazgo Demostrado</h3>
+            <h3 className="text-xl font-bold mb-3">Coordinación de Alta Complejidad</h3>
             <p className="text-gray-300">
-              Coordinación de equipos de hasta 15 personas. Experiencia abriendo proyectos complejos de integración desde cero en entornos educativos.
+              Experiencia y prolijidad articulando sistemas multi-componente y multi-stakeholder. Orquesto backend, frontend, bases de datos, APIs y equipos interdisciplinarios.
             </p>
           </div>
           <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition">
             <Award className="w-12 h-12 text-cyan-400 mb-4" />
-            <h3 className="text-xl font-bold mb-3">Pedagogía Experto 1</h3>
+            <h3 className="text-xl font-bold mb-3">Comunicación Técnica Clara</h3>
             <p className="text-gray-300">
-              15 años enseñando con certificación Experto 1. Capacidad única de explicar conceptos complejos y capacitar equipos en adopción tecnológica.
+              Traduzco complejidad técnica a lenguaje comprensible. Explico arquitecturas, flujos y decisiones técnicas de forma clara para stakeholders, clientes y equipos interdisciplinarios.
             </p>
           </div>
         </div>
