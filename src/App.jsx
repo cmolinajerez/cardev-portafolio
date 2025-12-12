@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSquare, Sparkles, Zap, Volume2, Workflow, Network } from 'lucide-react';
+import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSquare, Sparkles, Zap, Volume2, Workflow, Network, Bot, Code2, Globe } from 'lucide-react';
 
 // ✅ ÚNICO CAMBIO 1: Video en lugar de imagen SVG
 const AVATAR_VIDEO_URL = "./avatar-carla.mp4";
@@ -644,7 +644,7 @@ Responde de forma conversacional y estratégica:`
         <div className="grid md:grid-cols-3 gap-8">
           <div className="bg-gradient-to-br from-cyan-500/10 to-purple-500/10 backdrop-blur-sm p-8 rounded-2xl border border-cyan-500/30 hover:border-cyan-500 transition group">
             <div className="bg-cyan-500/20 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
-              <Brain className="w-8 h-8 text-cyan-400" />
+              <Bot className="w-8 h-8 text-cyan-400" />
             </div>
             <h3 className="text-2xl font-bold mb-3">Mentor-IA</h3>
             <p className="text-gray-300 mb-6">
@@ -660,11 +660,11 @@ Responde de forma conversacional y estratégica:`
 
           <div className="bg-gradient-to-br from-purple-500/10 to-cyan-500/10 backdrop-blur-sm p-8 rounded-2xl border border-purple-500/30 hover:border-purple-500 transition group">
             <div className="bg-purple-500/20 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
-              <MessageSquare className="w-8 h-8 text-purple-400" />
+              <Code2 className="w-8 h-8 text-purple-400" />
             </div>
             <h3 className="text-2xl font-bold mb-3">CarDev</h3>
             <p className="text-gray-300 mb-6">
-              Desarrollo de aplicaciones full-stack innovadoras. Soluciones completas desde arquitectura hasta producción con enfoque en IA conversacional integrada.
+              Desarrollo de aplicaciones full-stack innovadoras. Soluciones completas desde arquitectura hasta producción con enfoque en inteligencia artificial integrada.
             </p>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-400">LLMs</span>
@@ -675,7 +675,7 @@ Responde de forma conversacional y estratégica:`
 
           <div className="bg-gradient-to-br from-cyan-500/10 to-purple-500/10 backdrop-blur-sm p-8 rounded-2xl border border-cyan-500/30 hover:border-cyan-500 transition group">
             <div className="bg-cyan-500/20 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
-              <Code className="w-8 h-8 text-cyan-400" />
+              <Globe className="w-8 h-8 text-cyan-400" />
             </div>
             <h3 className="text-2xl font-bold mb-3">Desarrollo-Web</h3>
             <p className="text-gray-300 mb-6">
