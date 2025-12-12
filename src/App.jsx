@@ -877,7 +877,7 @@ Responde de forma conversacional y estratégica:`
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Escribe tu pregunta o usa el micrófono..."
-                  className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500 transition backdrop-blur-sm"
+                  className="flex-1 bg-white/10 border border-white/20 rounded-xl px-2 md:px-4 py-2 md:py-3 text-sm md:text-base focus:outline-none focus:border-cyan-500 transition backdrop-blur-sm"
                   disabled={isListening}
                 />
                 <button
