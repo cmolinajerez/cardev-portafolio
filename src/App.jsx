@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Send, Code, Brain, Users, Award, ExternalLink, MessageSquare, Sparkles, Zap, Volume2 } from 'lucide-react';
 
+// ✅ ÚNICO CAMBIO 1: Video en lugar de imagen SVG
 const AVATAR_VIDEO_URL = "./avatar-carla.mp4";
 
 const PortafolioCarDev = () => {
@@ -17,12 +18,9 @@ const PortafolioCarDev = () => {
   const recognitionRef = useRef(null);
   const audioRef = useRef(null);
   const shouldStopRecognition = useRef(false);
-  
-  // ✅ MODIFICADO: Video control state moved here from HolographicAvatar
-  const avatarVideoRef = useRef(null);
-  const [videoState, setVideoState] = useState('initial');
 
   useEffect(() => {
+    // Scroll solo dentro del contenedor del chat, NO toda la página
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
@@ -32,6 +30,8 @@ const PortafolioCarDev = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
+      
+      // CONTINUO: Graba sin detenerse por silencios
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'es-ES';
@@ -43,6 +43,7 @@ const PortafolioCarDev = () => {
             finalTranscript += event.results[i][0].transcript;
           }
         }
+        
         if (finalTranscript) {
           setInput(prev => (prev + ' ' + finalTranscript).trim());
         }
@@ -51,12 +52,14 @@ const PortafolioCarDev = () => {
       recognitionRef.current.onerror = (event) => {
         console.error('Error de reconocimiento de voz:', event.error);
         setIsListening(false);
+        
         if (event.error === 'not-allowed') {
           alert('Por favor, permite el acceso al micrófono en la configuración del navegador.');
         }
       };
 
       recognitionRef.current.onend = () => {
+        // Simplemente detener - NO reiniciar automáticamente
         setIsListening(false);
       };
     }
@@ -69,10 +72,12 @@ const PortafolioCarDev = () => {
     }
 
     if (isListening) {
+      // Usuario presionó "Detener" - marcar que SÍ queremos detener
       shouldStopRecognition.current = true;
       recognitionRef.current.stop();
       setIsListening(false);
     } else {
+      // Usuario presionó "Iniciar" - marcar que NO queremos detener
       shouldStopRecognition.current = false;
       try {
         recognitionRef.current.start();
@@ -85,42 +90,11 @@ const PortafolioCarDev = () => {
     }
   };
 
-  // ✅ MODIFICADO: Video control function moved here from HolographicAvatar
-  const handleVideoControl = () => {
-    if (!avatarVideoRef.current) return;
-    
-    if (videoState === 'initial' || videoState === 'ended') {
-      avatarVideoRef.current.currentTime = 0;
-      avatarVideoRef.current.play().catch(err => console.log('Video play error:', err));
-      setVideoState('playing');
-      avatarVideoRef.current.onended = () => {
-        setVideoState('ended');
-      };
-    } else if (videoState === 'playing') {
-      avatarVideoRef.current.pause();
-      setVideoState('paused');
-    } else if (videoState === 'paused') {
-      avatarVideoRef.current.play().catch(err => console.log('Video play error:', err));
-      setVideoState('playing');
-    }
-  };
-  
-  // ✅ MODIFICADO: Button content function moved here
-  const getButtonContent = () => {
-    if (videoState === 'initial') {
-      return { text: 'Ver mi presentación', icon: 'play' };
-    } else if (videoState === 'playing') {
-      return { text: 'Pausar video', icon: 'pause' };
-    } else if (videoState === 'paused') {
-      return { text: 'Continuar video', icon: 'play' };
-    } else if (videoState === 'ended') {
-      return { text: 'Ver de nuevo', icon: 'replay' };
-    }
-  };
-
   const speak = async (text, messageIndex, voiceMode) => {
     try {
+      // Si ya está reproduciendo ESTE mensaje con ESTE modo, pausar
       if (playingMessageIndex === messageIndex && playingVoiceMode === voiceMode) {
+        // Detener todo
         if (audioRef.current) {
           audioRef.current.pause();
           audioRef.current = null;
@@ -135,6 +109,7 @@ const PortafolioCarDev = () => {
         return;
       }
 
+      // Si hay otro audio reproduciéndose, detenerlo
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -146,8 +121,10 @@ const PortafolioCarDev = () => {
       setPlayingMessageIndex(messageIndex);
       setPlayingVoiceMode(voiceMode);
 
+      // MODO 1: Voz del navegador (rápida)
       if (voiceMode === 'browser') {
         const utterance = new SpeechSynthesisUtterance(text);
+        
         const voices = window.speechSynthesis.getVoices();
         const preferredVoices = [
           'Google español',
@@ -157,32 +134,42 @@ const PortafolioCarDev = () => {
           'Google español de Estados Unidos',
           'Microsoft Laura'
         ];
+        
         utterance.voice = voices.find(voice => 
           preferredVoices.some(pref => voice.name.includes(pref))
         );
+        
         if (!utterance.voice) {
           utterance.voice = voices.find(voice => voice.lang.startsWith('es'));
         }
+        
         utterance.lang = 'es-ES';
         utterance.rate = 0.95;
         utterance.pitch = 1.1;
+        
         utterance.onstart = () => {
           setIsSpeaking(true);
         };
+        
         utterance.onend = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
           setPlayingVoiceMode(null);
         };
+        
         utterance.onerror = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
           setPlayingVoiceMode(null);
         };
+        
         window.speechSynthesis.speak(utterance);
-      } else if (voiceMode === 'premium') {
+      } 
+      // MODO 2: Voz Premium ElevenLabs
+      else if (voiceMode === 'premium') {
         setIsGeneratingAudio(true);
         setIsSpeaking(true);
+
         const response = await fetch('/api/tts', {
           method: 'POST',
           headers: {
@@ -190,15 +177,19 @@ const PortafolioCarDev = () => {
           },
           body: JSON.stringify({ text })
         });
+
         if (!response.ok) {
           throw new Error('Error generating audio');
         }
+
         const data = await response.json();
         setIsGeneratingAudio(false);
+        
         const audioBlob = base64ToBlob(data.audio, 'audio/mpeg');
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
         audioRef.current = audio;
+        
         audio.onended = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
@@ -206,6 +197,7 @@ const PortafolioCarDev = () => {
           URL.revokeObjectURL(audioUrl);
           audioRef.current = null;
         };
+        
         audio.onerror = () => {
           setIsSpeaking(false);
           setPlayingMessageIndex(null);
@@ -214,8 +206,10 @@ const PortafolioCarDev = () => {
           URL.revokeObjectURL(audioUrl);
           audioRef.current = null;
         };
+        
         await audio.play();
       }
+      
     } catch (error) {
       console.error('Error playing audio:', error);
       setIsSpeaking(false);
@@ -225,17 +219,21 @@ const PortafolioCarDev = () => {
     }
   };
 
+  // Función helper para convertir Base64 a Blob
   const base64ToBlob = (base64, contentType) => {
     const byteCharacters = atob(base64);
     const byteArrays = [];
+    
     for (let i = 0; i < byteCharacters.length; i++) {
       byteArrays.push(byteCharacters.charCodeAt(i));
     }
+    
     return new Blob([new Uint8Array(byteArrays)], { type: contentType });
   };
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
+
     const userMessage = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
@@ -243,6 +241,7 @@ const PortafolioCarDev = () => {
 
     try {
       const conversationHistory = messages.map(m => `${m.role === 'user' ? 'Visitante' : 'Yo'}: ${m.content}`).join('\n');
+      
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -294,12 +293,15 @@ Responde de forma conversacional y estratégica:`
           ]
         })
       });
+
       const data = await response.json();
       const assistantMessage = {
         role: 'assistant',
         content: data.content[0].text
       };
+
       setMessages(prev => [...prev, assistantMessage]);
+      // ✅ NO llamar a speak() automáticamente - el usuario decide con los botones
     } catch (error) {
       console.error('Error:', error);
       const errorMessage = {
@@ -319,9 +321,50 @@ Responde de forma conversacional y estratégica:`
     }
   };
 
-  // ✅ MODIFIED: HolographicAvatar now receives videoRef as prop (button removed from inside)
-  const HolographicAvatar = ({ size = 'large', isThinking = false, isTalking = false, videoRef }) => {
+  const HolographicAvatar = ({ size = 'large', isThinking = false, isTalking = false }) => {
     const dimension = size === 'large' ? 'w-72 h-72' : 'w-32 h-32';
+    const videoRef = useRef(null);
+    const [videoState, setVideoState] = useState('initial'); // 'initial', 'playing', 'paused', 'ended'
+    
+    // ✅ Control del video con botón
+    const handleVideoControl = () => {
+      if (!videoRef.current) return;
+      
+      if (videoState === 'initial' || videoState === 'ended') {
+        // Reproducir desde el inicio
+        videoRef.current.currentTime = 0;
+        videoRef.current.play().catch(err => console.log('Video play error:', err));
+        setVideoState('playing');
+        
+        // Detectar cuando termina
+        videoRef.current.onended = () => {
+          setVideoState('ended');
+        };
+      } else if (videoState === 'playing') {
+        // Pausar
+        videoRef.current.pause();
+        setVideoState('paused');
+      } else if (videoState === 'paused') {
+        // Reanudar
+        videoRef.current.play().catch(err => console.log('Video play error:', err));
+        setVideoState('playing');
+      }
+    };
+    
+    // Determinar texto e icono del botón
+    const getButtonContent = () => {
+      if (videoState === 'initial') {
+        return { text: 'Ver mi presentación', icon: 'play' };
+      } else if (videoState === 'playing') {
+        return { text: 'Pausar video', icon: 'pause' };
+      } else if (videoState === 'paused') {
+        return { text: 'Continuar video', icon: 'play' };
+      } else if (videoState === 'ended') {
+        return { text: 'Ver de nuevo', icon: 'replay' };
+      }
+    };
+    
+    const buttonContent = getButtonContent();
     
     return (
       <div className={`relative ${dimension}`}>
@@ -329,6 +372,7 @@ Responde de forma conversacional y estratégica:`
         <div className={`absolute inset-0 bg-cyan-400 rounded-full blur-2xl opacity-20 ${isTalking ? 'animate-pulse' : ''}`} style={{animationDelay: '0.3s'}}></div>
         
         <div className="relative w-full h-full">
+          {/* ✅ Video se reproduce UNA vez al cargar, luego se detiene */}
           <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-cyan-400/50">
             <video 
               ref={videoRef}
@@ -463,6 +507,31 @@ Responde de forma conversacional y estratégica:`
             </div>
           )}
         </div>
+        
+        {/* ✅ Botón de control de video - siempre visible */}
+        <button
+          onClick={handleVideoControl}
+          className={`mt-8 bg-gradient-to-r from-cyan-500 to-purple-500 px-6 py-3 rounded-lg font-semibold text-sm hover:shadow-lg hover:shadow-cyan-500/50 transition flex items-center gap-2 mx-auto ${
+            videoState === 'initial' ? 'animate-pulse' : ''
+          }`}
+        >
+          {buttonContent.icon === 'play' && (
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+            </svg>
+          )}
+          {buttonContent.icon === 'pause' && (
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zM12.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z" />
+            </svg>
+          )}
+          {buttonContent.icon === 'replay' && (
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clipRule="evenodd" />
+            </svg>
+          )}
+          {buttonContent.text}
+        </button>
       </div>
     );
   };
@@ -633,35 +702,8 @@ Responde de forma conversacional y estratégica:`
         </div>
 
         <div className="grid md:grid-cols-[320px_1fr] gap-8 items-start">
-          {/* ✅ MODIFIED: Button moved outside of HolographicAvatar to prevent overlap */}
           <div className="flex flex-col items-center gap-6">
-            <HolographicAvatar size="large" isThinking={isLoading} isTalking={isSpeaking} videoRef={avatarVideoRef} />
-            
-            {/* ✅ Button placed between avatar and text - NO overlap */}
-            <button
-              onClick={handleVideoControl}
-              className={`bg-gradient-to-r from-cyan-500 to-purple-500 px-6 py-3 rounded-lg font-semibold text-sm hover:shadow-lg hover:shadow-cyan-500/50 transition flex items-center gap-2 ${
-                videoState === 'initial' ? 'animate-pulse' : ''
-              }`}
-            >
-              {getButtonContent().icon === 'play' && (
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                </svg>
-              )}
-              {getButtonContent().icon === 'pause' && (
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zM12.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z" />
-                </svg>
-              )}
-              {getButtonContent().icon === 'replay' && (
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clipRule="evenodd" />
-                </svg>
-              )}
-              {getButtonContent().text}
-            </button>
-            
+            <HolographicAvatar size="large" isThinking={isLoading} isTalking={isSpeaking} />
             <div className="text-center">
               <p className="text-cyan-400 font-semibold text-lg mb-1">Carla IA</p>
               <p className="text-gray-400 text-sm">
@@ -711,8 +753,11 @@ Responde de forma conversacional y estratégica:`
                       <div className="flex-1 p-4">
                         {msg.content}
                       </div>
+                      
+                      {/* Botones de audio solo para mensajes de Carla */}
                       {msg.role === 'assistant' && (
                         <div className="flex flex-col gap-2 mt-4 mr-3">
+                          {/* Botón Voz Rápida */}
                           <button
                             onClick={() => speak(msg.content, idx, 'browser')}
                             disabled={isGeneratingAudio && playingMessageIndex === idx}
@@ -726,6 +771,8 @@ Responde de forma conversacional y estratégica:`
                             <Volume2 className="w-4 h-4" />
                             <span>⚡</span>
                           </button>
+                          
+                          {/* Botón Voz Premium */}
                           <button
                             onClick={() => speak(msg.content, idx, 'premium')}
                             disabled={isGeneratingAudio && playingMessageIndex === idx}
@@ -765,6 +812,7 @@ Responde de forma conversacional y estratégica:`
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Floating Recording Panel - Similar to ChatGPT */}
             {isListening && (
               <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md">
                 <div className="bg-gradient-to-r from-cyan-500/15 to-blue-500/15 backdrop-blur-xl border-2 border-cyan-400/60 rounded-2xl p-6 shadow-2xl shadow-cyan-500/20 animate-pulse-slow">
@@ -784,6 +832,8 @@ Responde de forma conversacional y estratégica:`
                       Detener
                     </button>
                   </div>
+                  
+                  {/* Waveform Visualization */}
                   <div className="flex items-center justify-center gap-1 h-12">
                     {[...Array(20)].map((_, i) => (
                       <div
@@ -797,6 +847,7 @@ Responde de forma conversacional y estratégica:`
                       ></div>
                     ))}
                   </div>
+                  
                   <p className="text-cyan-100 text-sm text-center mt-4 font-medium">
                     🎤 Habla tu pregunta... Al terminar, presiona "Detener"
                   </p>
@@ -811,7 +862,7 @@ Responde de forma conversacional y estratégica:`
                   className={`p-3 rounded-xl transition ${
                     isListening
                       ? 'bg-gradient-to-r from-cyan-500 to-teal-500 shadow-lg shadow-cyan-500/30 animate-pulse'
-                      : 'bg-white/10 hover:bg-white/20 border border-white/10'
+                      : 'bg-white/10 hover:bg-white/20 border border-white/20'
                   }`}
                   title={isListening ? 'Detener grabación' : 'Iniciar grabación de voz'}
                 >
@@ -918,6 +969,7 @@ Responde de forma conversacional y estratégica:`
           0%, 100% { height: 10px; }
           50% { height: 20px; }
         }
+        
         @keyframes wave-recording {
           0%, 100% { 
             height: 20%;
@@ -928,10 +980,12 @@ Responde de forma conversacional y estratégica:`
             opacity: 1;
           }
         }
+        
         @keyframes scan {
           0% { top: -10%; }
           100% { top: 110%; }
         }
+        
         @keyframes glitch {
           0%, 100% { transform: translate(0); }
           20% { transform: translate(-2px, 2px); }
@@ -939,6 +993,7 @@ Responde de forma conversacional y estratégica:`
           60% { transform: translate(2px, 2px); }
           80% { transform: translate(2px, -2px); }
         }
+        
         @keyframes animate-pulse-slow {
           0%, 100% { 
             opacity: 1;
@@ -949,6 +1004,7 @@ Responde de forma conversacional y estratégica:`
             transform: scale(1.02);
           }
         }
+        
         .animate-pulse-slow {
           animation: animate-pulse-slow 2s ease-in-out infinite;
         }
