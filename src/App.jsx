@@ -705,13 +705,13 @@ Responde de forma conversacional y estratégica:`
           <div className="flex flex-col items-center gap-6">
             <HolographicAvatar size="large" isThinking={isLoading} isTalking={isSpeaking} />
             <div className="text-center">
-              <p className="text-cyan-400 font-semibold text-lg mb-1">Carla IA</p>
+              <p className="text-cyan-400 font-semibold text-lg mb-1"></p>
               <p className="text-gray-400 text-sm">
                 {isLoading && '💭 Pensando...'}
                 {isSpeaking && !isGeneratingAudio && '🔊 Reproduciendo...'}
                 {isGeneratingAudio && '🎵 Generando voz clonada...'}
                 {isListening && '🎤 Escuchando...'}
-                {!isLoading && !isSpeaking && !isListening && !isGeneratingAudio && '✨ Lista para conversar'}
+                {!isLoading && !isSpeaking && !isListening && !isGeneratingAudio && ''}
               </p>
             </div>
             <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 text-xs text-gray-400 w-full">
@@ -961,7 +961,7 @@ Responde de forma conversacional y estratégica:`
       </section>
 
       <footer className="relative z-10 px-6 py-8 border-t border-white/10 text-center text-gray-400">
-        <p>© 2024 Carla Pamela Molina Jerez • CarDev • Construido con IA conversacional</p>
+        <p>© 2025 Carla Pamela Molina Jerez • CarDev • Construido con IA conversacional</p>
       </footer>
 
       <style jsx>{`
