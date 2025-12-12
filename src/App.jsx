@@ -354,7 +354,7 @@ Responde de forma conversacional y estratégica:`
     // Determinar texto e icono del botón
     const getButtonContent = () => {
       if (videoState === 'initial') {
-        return { text: 'Ver mi presentación', icon: 'play' };
+        return { text: 'Comenzar', icon: 'play' };
       } else if (videoState === 'playing') {
         return { text: 'Pausar video', icon: 'pause' };
       } else if (videoState === 'paused') {
