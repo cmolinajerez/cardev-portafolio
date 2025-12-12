@@ -862,7 +862,7 @@ Responde de forma conversacional y estratégica:`
               <div className="flex gap-1 md:gap-2">
                 <button
                   onClick={toggleListening}
-                  className={`p-3 rounded-xl transition ${
+                  className={`p-2 md:p-3 rounded-xl transition ${
                     isListening
                       ? 'bg-gradient-to-r from-cyan-500 to-teal-500 shadow-lg shadow-cyan-500/30 animate-pulse'
                       : 'bg-white/10 hover:bg-white/20 border border-white/20'
