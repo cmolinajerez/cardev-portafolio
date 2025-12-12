@@ -858,8 +858,8 @@ Responde de forma conversacional y estratégica:`
               </div>
             )}
 
-            <div className="border-t border-white/20 p-4 bg-white/5">
-              <div className="flex gap-2">
+            <div className="border-t border-white/20 p-2 md:p-4 bg-white/5">
+              <div className="flex gap-1 md:gap-2">
                 <button
                   onClick={toggleListening}
                   className={`p-3 rounded-xl transition ${
@@ -936,7 +936,7 @@ Responde de forma conversacional y estratégica:`
       </section>
 
       <footer className="relative z-10 px-6 py-8 border-t border-white/10 text-center text-gray-400">
-        <p>© 2025 Carla Pamela Molina Jerez • CarDev • Construido con IA conversacional</p>
+        <p>© 2025 Carla Pamela Molina Jerez • Ingeniera en Computación en Informática</p>
       </footer>
 
       <style jsx>{`
