@@ -654,7 +654,7 @@ Responde de forma conversacional y estratégica:`
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">RAG</span>
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">LLMs</span>
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Bases de datos</span>
-              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Almacenamiento vectorial</span>
+              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Vector Store</span>
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">OpenAI</span>
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Anthropic</span>
             </div>
