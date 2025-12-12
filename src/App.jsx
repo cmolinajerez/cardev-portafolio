@@ -652,7 +652,7 @@ Responde de forma conversacional y estratégica:`
             </p>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">RAG</span>
-              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Integración LLMs</span>
+              <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">LLMs</span>
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Bases de datos</span>
               <span className="px-3 py-1 bg-cyan-500/20 rounded-full text-xs text-cyan-400">Almacenamiento vectorial</span>
             </div>
