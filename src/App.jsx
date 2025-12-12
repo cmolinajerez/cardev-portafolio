@@ -699,7 +699,7 @@ Responde de forma conversacional y estratégica:`
             </span>
           </h2>
           <p className="text-gray-300 text-lg">
-            Pregúntame sobre mi experiencia, proyectos y cómo puedo ayudarte. Puedes escribir o usar tu voz.
+            Conversa con mi agente IA sobre proyectos, stack técnico y formas de trabajar. Si quieres, prueba mi voz clonada con IA - un buen primer paso antes de colaborar.
           </p>
         </div>
 
