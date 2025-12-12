@@ -561,7 +561,7 @@ Responde de forma conversacional y estratégica:`
         <div className="text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1 bg-cyan-500/20 border border-cyan-500/50 rounded-full text-cyan-400 text-sm mb-6">
             <Sparkles className="w-4 h-4" />
-            Ingeniera en IA • Experto 1 en Docencia
+            Ingeniera Full Stack • Especialista en IA Conversacional
           </div>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             Carla Pamela
@@ -580,11 +580,11 @@ Responde de forma conversacional y estratégica:`
             </div>
             <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/10">
               <Users className="w-5 h-5 text-purple-400" />
-              <span>15 años docencia</span>
+              <span>Arquitectura & Coordinación de Sistemas</span>
             </div>
             <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/10">
               <Zap className="w-5 h-5 text-cyan-400" />
-              <span>Liderazgo de Equipos</span>
+              <span>Pensamiento Analítico-Creativo</span>
             </div>
           </div>
           <div className="flex flex-wrap justify-center gap-4">
