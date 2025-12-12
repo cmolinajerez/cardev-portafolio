@@ -908,34 +908,6 @@ Responde de forma conversacional y estratégica:`
         </div>
       </section>
 
-      <section className="relative z-10 px-6 py-20 max-w-7xl mx-auto">
-        <h2 className="text-4xl font-bold mb-12 text-center">
-          <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-            Servicios
-          </span>
-        </h2>
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10">
-            <h3 className="text-2xl font-bold mb-4">Agentes IA Conversacionales</h3>
-            <p className="text-gray-300 mb-4">
-              Diseño e implementación de soluciones con LLMs, RAG y MCP para automatizar procesos y gestión del conocimiento en organizaciones.
-            </p>
-            <a href="https://mentor-ia.cl" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 flex items-center gap-2">
-              Visitar Mentor-IA <ExternalLink className="w-4 h-4" />
-            </a>
-          </div>
-          <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10">
-            <h3 className="text-2xl font-bold mb-4">Desarrollo Web & Analytics</h3>
-            <p className="text-gray-300 mb-4">
-              Creación de sitios web, integración de soluciones y análisis de comportamiento de usuarios para optimizar conversiones.
-            </p>
-            <a href="https://desarrollo-web.cl" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 flex items-center gap-2">
-              Ver servicios web <ExternalLink className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
-      </section>
-
       <section id="contact" className="relative z-10 px-6 py-20 max-w-4xl mx-auto text-center">
         <h2 className="text-4xl font-bold mb-6">
           <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
