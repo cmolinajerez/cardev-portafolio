@@ -730,10 +730,10 @@ Responde de forma conversacional y estratégica:`
                   <Sparkles className="w-12 h-12 mx-auto mb-4 text-cyan-400" />
                   <p className="text-2xl font-semibold mb-2 text-gray">¡Hola! Soy Carla</p>
                   <p className="text-base text-gray-300">
-                    Pregúntame sobre mi experiencia, proyectos o cómo puedo ayudarte con IA.
+                    Pregunta sobre mi experiencia, proyectos o cómo puedo ayudarte con IA.
                   </p>
-                  <div className="mt-6 text-left max-w-md mx-auto space-y-2 text-xs">
-                    <p className="text-cyan-400">💡 Ejemplos de preguntas:</p>
+                  <div className="mt-6 text-left max-w-md mx-auto space-y-2">
+                    <p className="text-cyan-400 text-sm font-semibold">💡 Ejemplos de preguntas:</p>
                     <p>"¿Cuáles son tus fortalezas técnicas y personales?"</p>
                     <p>"¿Cuál ha sido tu proyecto más desafiante y cómo lo resolviste?"</p>
                     <p>"¿Qué stack usas para agentes RAG en producción?"</p>
