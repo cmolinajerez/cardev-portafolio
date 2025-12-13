@@ -729,7 +729,7 @@ Responde de forma conversacional y estratégica:`
                 <div className="text-center text-gray-400 mt-32">
                   <Sparkles className="w-12 h-12 mx-auto mb-4 text-cyan-400" />
                   <p className="text-lg mb-2">¡Hola! Soy Carla</p>
-                  <p className="text-sm">
+                  <p className="text-base text-gray-300">
                     Pregúntame sobre mi experiencia, proyectos o cómo puedo ayudarte con IA.
                   </p>
                   <div className="mt-6 text-left max-w-md mx-auto space-y-2 text-xs">
