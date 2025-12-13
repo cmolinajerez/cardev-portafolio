@@ -719,7 +719,7 @@ Responde de forma conversacional y estratégica:`
             </div>
             <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 text-xs text-gray-400 w-full">
               <p className="mb-2 text-cyan-400 font-semibold text-center">💡 Todas mis respuestas incluyen audio opcional. (Aparecerán botones al lado cada respuesta)</p>
-              <p className="text-center">Elige: <span className="text-white">⚡ Voz Rápida</span> o <span className="text-white">🎙️ Voz clonada en vivo</span></p>
+              <p className="text-center">Elige: <span className="text-white">⚡ Voz Rápida</span> o <span className="text-white">🎙️ Mi voz clonada en vivo</span></p>
             </div>
           </div>
 
@@ -890,7 +890,7 @@ Responde de forma conversacional y estratégica:`
               </div>
               {!isListening && !isSpeaking && !isGeneratingAudio && (
                 <p className="text-xs text-gray-400 mt-2 text-center">
-                  💡 Cada respuesta tiene dos opciones: <span className="text-white">⚡ Rápida</span> (instantánea) o <span className="text-cyan-400">🎙️ Premium</span> (mi voz clonada IA)
+                  <span className="text-white"></span><span className="text-cyan-400"></span>
                 </p>
               )}
               {isGeneratingAudio && (
