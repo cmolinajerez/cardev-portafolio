@@ -733,7 +733,7 @@ Responde de forma conversacional y estratégica:`
                     Pregunta sobre mi experiencia, proyectos o cómo puedo ayudarte con IA.
                   </p>
                   <div className="mt-6 text-left max-w-md mx-auto space-y-2">
-                    <p className="text-cyan-350 text-sm font-semibold">💡 Ejemplos de preguntas:</p>
+                    <p className="text-cyan-400 text-sm font-semibold">💡 Ejemplos de preguntas:</p>
                     <p>"¿Cuáles son tus fortalezas técnicas y personales?"</p>
                     <p>"¿Cuál ha sido tu proyecto más desafiante y cómo lo resolviste?"</p>
                     <p>"¿Qué stack usas para agentes RAG en producción?"</p>
